@@ -1,0 +1,100 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * MageClone MagentoMigrator Database Schema
+ *
+ * @category  MageClone
+ * @package   MageClone_MagentoMigrator
+ */
+-->
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+
+    <!-- Sync Status Table -->
+    <table name="mageclone_sync_status" resource="default" engine="innodb"
+           comment="MageClone Sync Status Tracking">
+        <column xsi:type="int" name="status_id" unsigned="true" nullable="false"
+                identity="true" comment="Status ID"/>
+        <column xsi:type="varchar" name="entity_type" nullable="false" length="64"
+                comment="Entity Type"/>
+        <column xsi:type="int" name="source_count" unsigned="true" nullable="false"
+                default="0" comment="Source Count"/>
+        <column xsi:type="int" name="destination_count" unsigned="true" nullable="false"
+                default="0" comment="Destination Count"/>
+        <column xsi:type="int" name="synced_count" unsigned="true" nullable="false"
+                default="0" comment="Synced Count"/>
+        <column xsi:type="int" name="failed_count" unsigned="true" nullable="false"
+                default="0" comment="Failed Count"/>
+        <column xsi:type="int" name="pending_count" unsigned="true" nullable="false"
+                default="0" comment="Pending Count"/>
+        <column xsi:type="varchar" name="status" nullable="false" length="32"
+                default="idle" comment="Sync Status"/>
+        <column xsi:type="timestamp" name="last_synced_at" nullable="true"
+                comment="Last Synced At"/>
+        <column xsi:type="timestamp" name="created_at" nullable="false"
+                default="CURRENT_TIMESTAMP" comment="Created At"/>
+        <column xsi:type="timestamp" name="updated_at" nullable="false"
+                default="CURRENT_TIMESTAMP" on_update="true" comment="Updated At"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="status_id"/>
+        </constraint>
+        <constraint xsi:type="unique" referenceId="MAGECLONE_SYNC_STATUS_ENTITY_TYPE">
+            <column name="entity_type"/>
+        </constraint>
+    </table>
+
+    <!-- ID Mapping Table -->
+    <table name="mageclone_id_mapping" resource="default" engine="innodb"
+           comment="MageClone Entity ID Mapping">
+        <column xsi:type="int" name="mapping_id" unsigned="true" nullable="false"
+                identity="true" comment="Mapping ID"/>
+        <column xsi:type="varchar" name="entity_type" nullable="false" length="64"
+                comment="Entity Type"/>
+        <column xsi:type="int" name="source_id" unsigned="true" nullable="false"
+                comment="Source Entity ID"/>
+        <column xsi:type="int" name="destination_id" unsigned="true" nullable="false"
+                comment="Destination Entity ID"/>
+        <column xsi:type="varchar" name="checksum" nullable="true" length="64"
+                comment="Data Checksum"/>
+        <column xsi:type="timestamp" name="created_at" nullable="false"
+                default="CURRENT_TIMESTAMP" comment="Created At"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="mapping_id"/>
+        </constraint>
+        <constraint xsi:type="unique" referenceId="MAGECLONE_ID_MAPPING_ENTITY_TYPE_SOURCE_ID">
+            <column name="entity_type"/>
+            <column name="source_id"/>
+        </constraint>
+    </table>
+
+    <!-- Sync Log Table -->
+    <table name="mageclone_sync_log" resource="default" engine="innodb"
+           comment="MageClone Sync Log">
+        <column xsi:type="int" name="log_id" unsigned="true" nullable="false"
+                identity="true" comment="Log ID"/>
+        <column xsi:type="varchar" name="entity_type" nullable="false" length="64"
+                comment="Entity Type"/>
+        <column xsi:type="int" name="source_id" unsigned="true" nullable="true"
+                comment="Source Entity ID"/>
+        <column xsi:type="varchar" name="status" nullable="false" length="32"
+                comment="Log Status"/>
+        <column xsi:type="text" name="message" nullable="true"
+                comment="Log Message"/>
+        <column xsi:type="varchar" name="batch_id" nullable="true" length="64"
+                comment="Batch Identifier"/>
+        <column xsi:type="timestamp" name="created_at" nullable="false"
+                default="CURRENT_TIMESTAMP" comment="Created At"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="log_id"/>
+        </constraint>
+        <index referenceId="MAGECLONE_SYNC_LOG_ENTITY_TYPE" indexType="btree">
+            <column name="entity_type"/>
+        </index>
+        <index referenceId="MAGECLONE_SYNC_LOG_STATUS" indexType="btree">
+            <column name="status"/>
+        </index>
+        <index referenceId="MAGECLONE_SYNC_LOG_BATCH_ID" indexType="btree">
+            <column name="batch_id"/>
+        </index>
+    </table>
+</schema>

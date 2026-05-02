@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * MageClone MagentoMigrator Message Queue Communication Configuration
+ *
+ * @category  MageClone
+ * @package   MageClone_MagentoMigrator
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Communication/etc/communication.xsd">
+    <topic name="mageclone.sync.entity"
+           request="MageClone\MagentoMigrator\Model\Queue\SyncMessage"/>
+</config>

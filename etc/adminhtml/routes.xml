@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * MageClone MagentoMigrator Admin Routes Configuration
+ *
+ * @category  MageClone
+ * @package   MageClone_MagentoMigrator
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:App/etc/routes.xsd">
+    <router id="admin">
+        <route id="mageclone" frontName="mageclone">
+            <module name="MageClone_MagentoMigrator"/>
+        </route>
+    </router>
+</config>

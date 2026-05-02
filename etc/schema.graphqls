@@ -1,0 +1,375 @@
+# MageClone Magento Migrator - GraphQL Schema
+# Provides read-only access to Magento 2 entities for migration planning and data extraction.
+
+type Query {
+    magecloneMigrationMetadata: MagecloneMigrationMetadata
+        @resolver(class: "MageClone\\MagentoMigrator\\Model\\Resolver\\SyncMetadata")
+        @doc(description: "Get entity counts for migration planning")
+
+    magecloneCustomers(
+        pageSize: Int = 50
+        currentPage: Int = 1
+        updatedSince: String
+    ): MagecloneCustomerOutput
+        @resolver(class: "MageClone\\MagentoMigrator\\Model\\Resolver\\Customers")
+        @doc(description: "Retrieve customers with addresses for migration")
+
+    magecloneOrders(
+        pageSize: Int = 50
+        currentPage: Int = 1
+        updatedSince: String
+    ): MagecloneOrderOutput
+        @resolver(class: "MageClone\\MagentoMigrator\\Model\\Resolver\\Orders")
+        @doc(description: "Retrieve orders with items, addresses, and payment for migration")
+
+    magecloneProducts(
+        pageSize: Int = 50
+        currentPage: Int = 1
+        updatedSince: String
+    ): MagecloneProductOutput
+        @resolver(class: "MageClone\\MagentoMigrator\\Model\\Resolver\\Products")
+        @doc(description: "Retrieve products with media, stock, tier prices, and configurable data for migration")
+
+    magecloneCategories(
+        pageSize: Int = 50
+        currentPage: Int = 1
+        updatedSince: String
+    ): MagecloneCategoryOutput
+        @resolver(class: "MageClone\\MagentoMigrator\\Model\\Resolver\\Categories")
+        @doc(description: "Retrieve categories with hierarchy for migration")
+
+    magecloneCmsPages(
+        pageSize: Int = 50
+        currentPage: Int = 1
+        updatedSince: String
+    ): MagecloneCmsPageOutput
+        @resolver(class: "MageClone\\MagentoMigrator\\Model\\Resolver\\CmsPages")
+        @doc(description: "Retrieve CMS pages for migration")
+
+    magecloneCmsBlocks(
+        pageSize: Int = 50
+        currentPage: Int = 1
+        updatedSince: String
+    ): MagecloneCmsBlockOutput
+        @resolver(class: "MageClone\\MagentoMigrator\\Model\\Resolver\\CmsBlocks")
+        @doc(description: "Retrieve CMS blocks for migration")
+
+    magecloneStoreConfigs(
+        paths: [String!]!
+    ): [MagecloneStoreConfig!]!
+        @resolver(class: "MageClone\\MagentoMigrator\\Model\\Resolver\\StoreConfigs")
+        @doc(description: "Retrieve store configuration values by path")
+
+    magecloneCustomTableData(
+        tableName: String!
+        pageSize: Int = 50
+        currentPage: Int = 1
+    ): MagecloneCustomTableOutput
+        @resolver(class: "MageClone\\MagentoMigrator\\Model\\Resolver\\CustomTableData")
+        @doc(description: "Retrieve raw data from a custom database table for migration")
+
+    magecloneEavAttributes(
+        entityTypeCode: String!
+    ): [MagecloneEavAttribute!]!
+        @resolver(class: "MageClone\\MagentoMigrator\\Model\\Resolver\\EavAttributes")
+        @doc(description: "Retrieve EAV attributes and options for a given entity type")
+}
+
+type MagecloneMigrationMetadata @doc(description: "Entity counts for migration planning") {
+    customer_count: Int @doc(description: "Total number of customers")
+    order_count: Int @doc(description: "Total number of orders")
+    product_count: Int @doc(description: "Total number of products")
+    category_count: Int @doc(description: "Total number of categories")
+    cms_page_count: Int @doc(description: "Total number of CMS pages")
+    cms_block_count: Int @doc(description: "Total number of CMS blocks")
+    store_config_count: Int @doc(description: "Total number of store config entries")
+}
+
+type MagecloneCustomerOutput @doc(description: "Paginated customer list") {
+    items: [MagecloneCustomer!]!
+    total_count: Int!
+    page_info: MageclonePageInfo!
+}
+
+type MagecloneCustomer @doc(description: "Customer entity with addresses and custom attributes") {
+    entity_id: Int!
+    email: String!
+    firstname: String
+    lastname: String
+    group_id: Int
+    store_id: Int
+    website_id: Int
+    created_at: String
+    updated_at: String
+    dob: String
+    gender: Int
+    prefix: String
+    suffix: String
+    taxvat: String
+    addresses: [MagecloneCustomerAddress!]
+    custom_attributes: [MagecloneCustomAttribute!]
+}
+
+type MagecloneCustomerAddress @doc(description: "Customer address entity") {
+    entity_id: Int!
+    firstname: String
+    lastname: String
+    street: [String]
+    city: String
+    region: String
+    region_id: Int
+    postcode: String
+    country_id: String
+    telephone: String
+    company: String
+    is_default_billing: Boolean
+    is_default_shipping: Boolean
+}
+
+type MagecloneOrderOutput @doc(description: "Paginated order list") {
+    items: [MagecloneOrder!]!
+    total_count: Int!
+    page_info: MageclonePageInfo!
+}
+
+type MagecloneOrder @doc(description: "Order entity with items, addresses, and payment") {
+    entity_id: Int!
+    increment_id: String!
+    state: String
+    status: String
+    store_id: Int
+    customer_id: Int
+    customer_email: String
+    grand_total: Float
+    subtotal: Float
+    tax_amount: Float
+    shipping_amount: Float
+    discount_amount: Float
+    total_qty_ordered: Float
+    currency_code: String
+    order_currency_code: String
+    shipping_method: String
+    shipping_description: String
+    customer_firstname: String
+    customer_lastname: String
+    created_at: String
+    updated_at: String
+    items: [MagecloneOrderItem!]
+    billing_address: MagecloneOrderAddress
+    shipping_address: MagecloneOrderAddress
+    payment: MagecloneOrderPayment
+}
+
+type MagecloneOrderItem @doc(description: "Order line item") {
+    item_id: Int!
+    sku: String!
+    name: String
+    qty_ordered: Float
+    price: Float
+    row_total: Float
+    tax_amount: Float
+    discount_amount: Float
+    product_type: String
+    weight: Float
+}
+
+type MagecloneOrderAddress @doc(description: "Order address") {
+    entity_id: Int!
+    firstname: String
+    lastname: String
+    street: String
+    city: String
+    region: String
+    region_id: Int
+    postcode: String
+    country_id: String
+    telephone: String
+    company: String
+    address_type: String
+}
+
+type MagecloneOrderPayment @doc(description: "Order payment information") {
+    method: String
+    additional_information: [String]
+}
+
+type MagecloneProductOutput @doc(description: "Paginated product list") {
+    items: [MagecloneProduct!]!
+    total_count: Int!
+    page_info: MageclonePageInfo!
+}
+
+type MagecloneProduct @doc(description: "Product entity with media, stock, and configurable data") {
+    entity_id: Int!
+    sku: String!
+    name: String
+    type_id: String
+    attribute_set_id: Int
+    status: Int
+    visibility: Int
+    price: Float
+    special_price: Float
+    special_from_date: String
+    special_to_date: String
+    weight: Float
+    url_key: String
+    description: String
+    short_description: String
+    meta_title: String
+    meta_description: String
+    meta_keyword: String
+    created_at: String
+    updated_at: String
+    media_gallery: [MagecloneMediaGalleryEntry!]
+    stock_item: MagecloneStockItem
+    tier_prices: [MagecloneTierPrice!]
+    category_ids: [Int!]
+    custom_attributes: [MagecloneCustomAttribute!]
+    configurable_options: [MagecloneConfigurableOption!]
+    configurable_children_skus: [String!]
+}
+
+type MagecloneMediaGalleryEntry @doc(description: "Product media gallery entry") {
+    value_id: Int
+    file: String
+    media_type: String
+    label: String
+    position: Int
+    disabled: Boolean
+}
+
+type MagecloneStockItem @doc(description: "Product stock information") {
+    qty: Float
+    is_in_stock: Boolean
+    manage_stock: Boolean
+    min_qty: Float
+    min_sale_qty: Float
+    max_sale_qty: Float
+}
+
+type MagecloneTierPrice @doc(description: "Product tier price") {
+    customer_group_id: Int
+    qty: Float
+    value: Float
+    percentage_value: Float
+}
+
+type MagecloneConfigurableOption @doc(description: "Configurable product option") {
+    attribute_id: Int
+    attribute_code: String
+    label: String
+    values: [MagecloneConfigurableOptionValue!]
+}
+
+type MagecloneConfigurableOptionValue @doc(description: "Configurable option value") {
+    value_index: Int
+    label: String
+}
+
+type MagecloneCategoryOutput @doc(description: "Paginated category list") {
+    items: [MagecloneCategory!]!
+    total_count: Int!
+    page_info: MageclonePageInfo!
+}
+
+type MagecloneCategory @doc(description: "Category entity with hierarchy") {
+    entity_id: Int!
+    name: String
+    parent_id: Int
+    path: String
+    level: Int
+    position: Int
+    is_active: Boolean
+    include_in_menu: Boolean
+    url_key: String
+    description: String
+    meta_title: String
+    meta_description: String
+    created_at: String
+    updated_at: String
+    custom_attributes: [MagecloneCustomAttribute!]
+}
+
+type MagecloneCmsPageOutput @doc(description: "Paginated CMS page list") {
+    items: [MagecloneCmsPage!]!
+    total_count: Int!
+    page_info: MageclonePageInfo!
+}
+
+type MagecloneCmsPage @doc(description: "CMS page entity") {
+    page_id: Int!
+    identifier: String!
+    title: String
+    content: String
+    content_heading: String
+    page_layout: String
+    meta_title: String
+    meta_description: String
+    meta_keywords: String
+    is_active: Boolean
+    sort_order: Int
+    store_ids: [Int!]
+    created_at: String
+    updated_at: String
+}
+
+type MagecloneCmsBlockOutput @doc(description: "Paginated CMS block list") {
+    items: [MagecloneCmsBlock!]!
+    total_count: Int!
+    page_info: MageclonePageInfo!
+}
+
+type MagecloneCmsBlock @doc(description: "CMS block entity") {
+    block_id: Int!
+    identifier: String!
+    title: String
+    content: String
+    is_active: Boolean
+    store_ids: [Int!]
+    created_at: String
+    updated_at: String
+}
+
+type MagecloneStoreConfig @doc(description: "Store configuration key-value pair") {
+    path: String!
+    value: String
+}
+
+type MagecloneCustomTableOutput @doc(description: "Paginated custom table data") {
+    items: [MagecloneCustomTableRow!]!
+    total_count: Int!
+    page_info: MageclonePageInfo!
+    columns: [String!]!
+}
+
+type MagecloneCustomTableRow @doc(description: "Single row from a custom table as JSON") {
+    data: String!
+}
+
+type MagecloneEavAttribute @doc(description: "EAV attribute with options") {
+    attribute_id: Int!
+    attribute_code: String!
+    frontend_input: String
+    frontend_label: String
+    is_required: Boolean
+    is_user_defined: Boolean
+    default_value: String
+    entity_type_code: String
+    options: [MagecloneAttributeOption!]
+}
+
+type MagecloneAttributeOption @doc(description: "Attribute option value-label pair") {
+    value: String!
+    label: String!
+}
+
+type MagecloneCustomAttribute @doc(description: "Custom attribute key-value pair") {
+    attribute_code: String!
+    value: String
+}
+
+type MageclonePageInfo @doc(description: "Pagination information") {
+    page_size: Int!
+    current_page: Int!
+    total_pages: Int!
+}

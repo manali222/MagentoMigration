@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * MageClone MagentoMigrator Dependency Injection Configuration
+ *
+ * @category  MageClone
+ * @package   MageClone_MagentoMigrator
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+
+    <!-- Data Model Preferences -->
+    <preference for="MageClone\MagentoMigrator\Api\Data\SyncStatusInterface"
+                type="MageClone\MagentoMigrator\Model\SyncStatus"/>
+    <preference for="MageClone\MagentoMigrator\Api\Data\SyncLogInterface"
+                type="MageClone\MagentoMigrator\Model\SyncLog"/>
+    <preference for="MageClone\MagentoMigrator\Api\Data\IdMappingInterface"
+                type="MageClone\MagentoMigrator\Model\IdMapping"/>
+
+    <!-- Repository Preferences -->
+    <preference for="MageClone\MagentoMigrator\Api\SyncStatusRepositoryInterface"
+                type="MageClone\MagentoMigrator\Model\Repository\SyncStatusRepository"/>
+    <preference for="MageClone\MagentoMigrator\Api\SyncLogRepositoryInterface"
+                type="MageClone\MagentoMigrator\Model\Repository\SyncLogRepository"/>
+    <preference for="MageClone\MagentoMigrator\Api\IdMappingRepositoryInterface"
+                type="MageClone\MagentoMigrator\Model\Repository\IdMappingRepository"/>
+
+    <!-- Service Preferences -->
+    <preference for="MageClone\MagentoMigrator\Api\SyncServiceInterface"
+                type="MageClone\MagentoMigrator\Model\SyncService"/>
+    <preference for="MageClone\MagentoMigrator\Api\GraphQlClientInterface"
+                type="MageClone\MagentoMigrator\Model\GraphQlClient"/>
+
+    <!-- SyncService Constructor Argument: Entity Syncs -->
+    <type name="MageClone\MagentoMigrator\Model\SyncService">
+        <arguments>
+            <argument name="entitySyncs" xsi:type="array">
+                <!-- Entity sync classes will be registered here in later phases -->
+                <!-- Example:
+                <item name="customer" xsi:type="object">MageClone\MagentoMigrator\Model\Sync\CustomerSync</item>
+                <item name="product" xsi:type="object">MageClone\MagentoMigrator\Model\Sync\ProductSync</item>
+                <item name="order" xsi:type="object">MageClone\MagentoMigrator\Model\Sync\OrderSync</item>
+                <item name="cms_page" xsi:type="object">MageClone\MagentoMigrator\Model\Sync\CmsPageSync</item>
+                <item name="cms_block" xsi:type="object">MageClone\MagentoMigrator\Model\Sync\CmsBlockSync</item>
+                <item name="category" xsi:type="object">MageClone\MagentoMigrator\Model\Sync\CategorySync</item>
+                -->
+            </argument>
+        </arguments>
+    </type>
+</config>

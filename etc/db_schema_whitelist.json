@@ -1,0 +1,56 @@
+{
+    "mageclone_sync_status": {
+        "column": {
+            "status_id": true,
+            "entity_type": true,
+            "source_count": true,
+            "destination_count": true,
+            "synced_count": true,
+            "failed_count": true,
+            "pending_count": true,
+            "status": true,
+            "last_synced_at": true,
+            "created_at": true,
+            "updated_at": true
+        },
+        "index": {},
+        "constraint": {
+            "PRIMARY": true,
+            "MAGECLONE_SYNC_STATUS_ENTITY_TYPE": true
+        }
+    },
+    "mageclone_id_mapping": {
+        "column": {
+            "mapping_id": true,
+            "entity_type": true,
+            "source_id": true,
+            "destination_id": true,
+            "checksum": true,
+            "created_at": true
+        },
+        "index": {},
+        "constraint": {
+            "PRIMARY": true,
+            "MAGECLONE_ID_MAPPING_ENTITY_TYPE_SOURCE_ID": true
+        }
+    },
+    "mageclone_sync_log": {
+        "column": {
+            "log_id": true,
+            "entity_type": true,
+            "source_id": true,
+            "status": true,
+            "message": true,
+            "batch_id": true,
+            "created_at": true
+        },
+        "index": {
+            "MAGECLONE_SYNC_LOG_ENTITY_TYPE": true,
+            "MAGECLONE_SYNC_LOG_STATUS": true,
+            "MAGECLONE_SYNC_LOG_BATCH_ID": true
+        },
+        "constraint": {
+            "PRIMARY": true
+        }
+    }
+}

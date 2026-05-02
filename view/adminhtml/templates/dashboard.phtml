@@ -1,0 +1,146 @@
+<?php
+/**
+ * MageClone MagentoMigrator Dashboard Template
+ *
+ * @var \MageClone\MagentoMigrator\Block\Adminhtml\Dashboard $block
+ */
+
+declare(strict_types=1);
+
+$isConnected = $block->getConnectionStatus();
+$sourceUrl = $block->escapeHtml($block->getSourceUrl());
+$syncStatuses = $block->getSyncStatuses();
+$entityTypes = $block->getEntityTypes();
+$syncStartUrl = $block->getSyncStartUrl();
+$statusUrl = $block->getStatusUrl();
+$resyncUrl = $block->getResyncUrl();
+$logsUrl = $block->getLogsUrl();
+?>
+
+<div class="mageclone-dashboard">
+    <!-- Connection Status -->
+    <div class="mageclone-connection-status <?= $isConnected ? 'connected' : 'disconnected' ?>">
+        <span class="mageclone-status-indicator <?= $isConnected ? 'green' : 'red' ?>"></span>
+        <?php if ($isConnected): ?>
+            <strong><?= $block->escapeHtml(__('Connected')) ?></strong>
+            &mdash; Source: <code><?= $sourceUrl ?></code>
+        <?php else: ?>
+            <strong><?= $block->escapeHtml(__('Disconnected')) ?></strong>
+            &mdash; Unable to connect to source instance.
+            <?php if ($sourceUrl): ?>
+                Configured URL: <code><?= $sourceUrl ?></code>
+            <?php else: ?>
+                No source URL configured. Please configure in
+                <a href="<?= $block->escapeUrl($block->getUrl('adminhtml/system_config/edit', ['section' => 'mageclone_migrator'])) ?>">
+                    Stores &gt; Configuration &gt; MageClone Migrator Settings</a>.
+            <?php endif; ?>
+        <?php endif; ?>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="mageclone-actions">
+        <button id="mageclone-sync-all" class="action-primary" type="button"
+                title="<?= $block->escapeHtmlAttr(__('Sync All')) ?>"
+                <?= !$isConnected ? 'disabled="disabled"' : '' ?>>
+            <span><?= $block->escapeHtml(__('Sync All')) ?></span>
+        </button>
+        <button id="mageclone-resync-failed" class="action-secondary" type="button"
+                data-entity-type="all"
+                title="<?= $block->escapeHtmlAttr(__('Resync Failed')) ?>"
+                <?= !$isConnected ? 'disabled="disabled"' : '' ?>>
+            <span><?= $block->escapeHtml(__('Resync Failed')) ?></span>
+        </button>
+        <a href="<?= $block->escapeUrl($logsUrl) ?>" class="action-secondary" title="<?= $block->escapeHtmlAttr(__('View Logs')) ?>">
+            <span><?= $block->escapeHtml(__('View Logs')) ?></span>
+        </a>
+        <span id="mageclone-auto-refresh-indicator" style="display:none; margin-left: 15px; color: #1976d2;">
+            <?= $block->escapeHtml(__('Auto-refreshing...')) ?>
+        </span>
+    </div>
+
+    <!-- Entity Sync Status Table -->
+    <table class="mageclone-sync-table">
+        <thead>
+            <tr>
+                <th><?= $block->escapeHtml(__('Entity Type')) ?></th>
+                <th><?= $block->escapeHtml(__('Source Count')) ?></th>
+                <th><?= $block->escapeHtml(__('Dest Count')) ?></th>
+                <th><?= $block->escapeHtml(__('Synced')) ?></th>
+                <th><?= $block->escapeHtml(__('Failed')) ?></th>
+                <th><?= $block->escapeHtml(__('Pending')) ?></th>
+                <th><?= $block->escapeHtml(__('Status')) ?></th>
+                <th><?= $block->escapeHtml(__('Last Synced')) ?></th>
+                <th><?= $block->escapeHtml(__('Action')) ?></th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php if (!empty($syncStatuses)): ?>
+                <?php foreach ($syncStatuses as $status): ?>
+                    <tr id="entity-row-<?= $block->escapeHtmlAttr($status->getEntityType()) ?>">
+                        <td><?= $block->escapeHtml(ucwords(str_replace('_', ' ', $status->getEntityType() ?? ''))) ?></td>
+                        <td class="source-count"><?= (int) $status->getSourceCount() ?></td>
+                        <td class="dest-count"><?= (int) $status->getDestinationCount() ?></td>
+                        <td class="synced-count"><?= (int) $status->getSyncedCount() ?></td>
+                        <td class="failed-count"><?= (int) $status->getFailedCount() ?></td>
+                        <td class="pending-count"><?= (int) $status->getPendingCount() ?></td>
+                        <td>
+                            <span class="sync-status status-<?= $block->escapeHtmlAttr($status->getStatus() ?? 'idle') ?>">
+                                <?= $block->escapeHtml(ucfirst(str_replace('_', ' ', $status->getStatus() ?? 'idle'))) ?>
+                            </span>
+                        </td>
+                        <td><?= $block->escapeHtml($status->getLastSyncedAt() ?? __('Never')) ?></td>
+                        <td>
+                            <button class="mageclone-sync-btn action-default"
+                                    type="button"
+                                    data-entity-type="<?= $block->escapeHtmlAttr($status->getEntityType()) ?>"
+                                    <?= !$isConnected ? 'disabled="disabled"' : '' ?>>
+                                <span><?= $block->escapeHtml(__('Sync')) ?></span>
+                            </button>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            <?php elseif (!empty($entityTypes)): ?>
+                <?php foreach ($entityTypes as $entityType): ?>
+                    <tr id="entity-row-<?= $block->escapeHtmlAttr($entityType) ?>">
+                        <td><?= $block->escapeHtml(ucwords(str_replace('_', ' ', $entityType))) ?></td>
+                        <td class="source-count">0</td>
+                        <td class="dest-count">0</td>
+                        <td class="synced-count">0</td>
+                        <td class="failed-count">0</td>
+                        <td class="pending-count">0</td>
+                        <td>
+                            <span class="sync-status status-idle">
+                                <?= $block->escapeHtml(__('Idle')) ?>
+                            </span>
+                        </td>
+                        <td><?= $block->escapeHtml(__('Never')) ?></td>
+                        <td>
+                            <button class="mageclone-sync-btn action-default"
+                                    type="button"
+                                    data-entity-type="<?= $block->escapeHtmlAttr($entityType) ?>"
+                                    <?= !$isConnected ? 'disabled="disabled"' : '' ?>>
+                                <span><?= $block->escapeHtml(__('Sync')) ?></span>
+                            </button>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <tr>
+                    <td colspan="9"><?= $block->escapeHtml(__('No entity types are configured. Please configure enabled entities in Stores > Configuration > MageClone Migrator Settings.')) ?></td>
+                </tr>
+            <?php endif; ?>
+        </tbody>
+    </table>
+</div>
+
+<script type="text/x-magento-init">
+{
+    "*": {
+        "MageClone_MagentoMigrator/js/sync-dashboard": {
+            "syncStartUrl": "<?= $block->escapeJs($syncStartUrl) ?>",
+            "statusUrl": "<?= $block->escapeJs($statusUrl) ?>",
+            "resyncUrl": "<?= $block->escapeJs($resyncUrl) ?>"
+        }
+    }
+}
+</script>

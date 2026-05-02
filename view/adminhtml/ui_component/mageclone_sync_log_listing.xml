@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * MageClone MagentoMigrator Sync Log Listing UI Component
+ *
+ * @category  MageClone
+ * @package   MageClone_MagentoMigrator
+ */
+-->
+<listing xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+
+    <argument name="data" xsi:type="array">
+        <item name="js_config" xsi:type="array">
+            <item name="provider" xsi:type="string">mageclone_sync_log_listing.mageclone_sync_log_listing_data_source</item>
+        </item>
+    </argument>
+
+    <settings>
+        <spinner>mageclone_sync_log_columns</spinner>
+        <deps>
+            <dep>mageclone_sync_log_listing.mageclone_sync_log_listing_data_source</dep>
+        </deps>
+    </settings>
+
+    <dataSource name="mageclone_sync_log_listing_data_source" component="Magento_Ui/js/grid/provider">
+        <settings>
+            <updateUrl path="mui/index/render"/>
+        </settings>
+        <aclResource>MageClone_MagentoMigrator::sync</aclResource>
+        <dataProvider class="Magento\Framework\View\Element\UiComponent\DataProvider\DataProvider"
+                      name="mageclone_sync_log_listing_data_source">
+            <settings>
+                <requestFieldName>id</requestFieldName>
+                <primaryFieldName>log_id</primaryFieldName>
+            </settings>
+        </dataProvider>
+    </dataSource>
+
+    <listingToolbar name="listing_top">
+        <settings>
+            <sticky>true</sticky>
+        </settings>
+        <bookmark name="bookmarks"/>
+        <columnsControls name="columns_controls"/>
+        <filters name="listing_filters">
+            <settings>
+                <templates>
+                    <filters>
+                        <select>
+                            <param name="template" xsi:type="string">ui/grid/filters/elements/ui-select</param>
+                            <param name="component" xsi:type="string">Magento_Ui/js/form/element/ui-select</param>
+                        </select>
+                    </filters>
+                </templates>
+            </settings>
+        </filters>
+        <paging name="listing_paging"/>
+        <exportButton name="export_button"/>
+    </listingToolbar>
+
+    <columns name="mageclone_sync_log_columns">
+        <selectionsColumn name="ids" sortOrder="0">
+            <settings>
+                <indexField>log_id</indexField>
+            </settings>
+        </selectionsColumn>
+
+        <column name="log_id" sortOrder="10">
+            <settings>
+                <filter>textRange</filter>
+                <label translate="true">ID</label>
+                <sorting>desc</sorting>
+            </settings>
+        </column>
+
+        <column name="entity_type" sortOrder="20">
+            <settings>
+                <filter>select</filter>
+                <label translate="true">Entity Type</label>
+                <options>
+                    <option name="customer" xsi:type="array">
+                        <item name="value" xsi:type="string">customer</item>
+                        <item name="label" xsi:type="string" translate="true">Customer</item>
+                    </option>
+                    <option name="order" xsi:type="array">
+                        <item name="value" xsi:type="string">order</item>
+                        <item name="label" xsi:type="string" translate="true">Order</item>
+                    </option>
+                    <option name="product" xsi:type="array">
+                        <item name="value" xsi:type="string">product</item>
+                        <item name="label" xsi:type="string" translate="true">Product</item>
+                    </option>
+                    <option name="category" xsi:type="array">
+                        <item name="value" xsi:type="string">category</item>
+                        <item name="label" xsi:type="string" translate="true">Category</item>
+                    </option>
+                    <option name="cms_page" xsi:type="array">
+                        <item name="value" xsi:type="string">cms_page</item>
+                        <item name="label" xsi:type="string" translate="true">CMS Page</item>
+                    </option>
+                    <option name="cms_block" xsi:type="array">
+                        <item name="value" xsi:type="string">cms_block</item>
+                        <item name="label" xsi:type="string" translate="true">CMS Block</item>
+                    </option>
+                    <option name="store_config" xsi:type="array">
+                        <item name="value" xsi:type="string">store_config</item>
+                        <item name="label" xsi:type="string" translate="true">Store Config</item>
+                    </option>
+                    <option name="eav_attribute" xsi:type="array">
+                        <item name="value" xsi:type="string">eav_attribute</item>
+                        <item name="label" xsi:type="string" translate="true">EAV Attribute</item>
+                    </option>
+                    <option name="custom_table" xsi:type="array">
+                        <item name="value" xsi:type="string">custom_table</item>
+                        <item name="label" xsi:type="string" translate="true">Custom Table</item>
+                    </option>
+                </options>
+            </settings>
+        </column>
+
+        <column name="source_id" sortOrder="30">
+            <settings>
+                <filter>text</filter>
+                <label translate="true">Source ID</label>
+            </settings>
+        </column>
+
+        <column name="status" sortOrder="40">
+            <settings>
+                <filter>select</filter>
+                <label translate="true">Status</label>
+                <options>
+                    <option name="success" xsi:type="array">
+                        <item name="value" xsi:type="string">success</item>
+                        <item name="label" xsi:type="string" translate="true">Success</item>
+                    </option>
+                    <option name="error" xsi:type="array">
+                        <item name="value" xsi:type="string">error</item>
+                        <item name="label" xsi:type="string" translate="true">Error</item>
+                    </option>
+                    <option name="skipped" xsi:type="array">
+                        <item name="value" xsi:type="string">skipped</item>
+                        <item name="label" xsi:type="string" translate="true">Skipped</item>
+                    </option>
+                    <option name="info" xsi:type="array">
+                        <item name="value" xsi:type="string">info</item>
+                        <item name="label" xsi:type="string" translate="true">Info</item>
+                    </option>
+                </options>
+            </settings>
+        </column>
+
+        <column name="message" sortOrder="50">
+            <settings>
+                <filter>text</filter>
+                <label translate="true">Message</label>
+            </settings>
+        </column>
+
+        <column name="batch_id" sortOrder="60">
+            <settings>
+                <filter>text</filter>
+                <label translate="true">Batch ID</label>
+            </settings>
+        </column>
+
+        <column name="created_at" class="Magento\Ui\Component\Listing\Columns\Date"
+                component="Magento_Ui/js/grid/columns/date" sortOrder="70">
+            <settings>
+                <filter>dateRange</filter>
+                <label translate="true">Created At</label>
+                <dataType>date</dataType>
+            </settings>
+        </column>
+    </columns>
+</listing>

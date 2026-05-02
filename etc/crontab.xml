@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * MageClone MagentoMigrator Cron Configuration
+ *
+ * @category  MageClone
+ * @package   MageClone_MagentoMigrator
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
+    <group id="default">
+        <job name="mageclone_incremental_sync" instance="MageClone\MagentoMigrator\Cron\IncrementalSync" method="execute">
+            <schedule>0 */4 * * *</schedule>
+        </job>
+    </group>
+</config>

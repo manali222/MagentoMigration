@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * MageClone MagentoMigrator System Configuration
+ *
+ * @category  MageClone
+ * @package   MageClone_MagentoMigrator
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <section id="mageclone_migrator" translate="title" type="text" sortOrder="500" showInDefault="1"
+                 showInWebsite="0" showInStore="0">
+            <label>MageClone Migrator Settings</label>
+            <tab>general</tab>
+            <resource>MageClone_MagentoMigrator::config</resource>
+
+            <group id="general" translate="label" type="text" sortOrder="10" showInDefault="1"
+                   showInWebsite="0" showInStore="0">
+                <label>Source Configuration</label>
+
+                <field id="source_url" translate="label comment" type="text" sortOrder="10"
+                       showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Source Magento URL</label>
+                    <comment>The base URL of the source Magento 2 instance (e.g., https://source.example.com)</comment>
+                    <validate>required-entry validate-url</validate>
+                </field>
+
+                <field id="api_token" translate="label comment" type="obscure" sortOrder="20"
+                       showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Source API Bearer Token</label>
+                    <comment>Bearer token for authenticating with the source Magento instance API.</comment>
+                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                    <validate>required-entry</validate>
+                </field>
+
+                <field id="batch_size" translate="label comment" type="text" sortOrder="30"
+                       showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Records Per Batch</label>
+                    <comment>Number of records to process per batch during synchronization.</comment>
+                    <validate>validate-digits validate-greater-than-zero</validate>
+                </field>
+
+                <field id="incremental_enabled" translate="label comment" type="select" sortOrder="40"
+                       showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Enable Incremental Sync</label>
+                    <comment>When enabled, only records modified since the last sync will be processed.</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+
+                <field id="custom_tables" translate="label comment" type="textarea" sortOrder="50"
+                       showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Custom Table Names</label>
+                    <comment>Comma-separated list of custom database table names to migrate.</comment>
+                </field>
+
+                <field id="enabled_entities" translate="label comment" type="multiselect" sortOrder="60"
+                       showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Entity Types to Sync</label>
+                    <comment>Select the entity types that should be included in the migration.</comment>
+                    <source_model>MageClone\MagentoMigrator\Model\Config\Source\EntityTypes</source_model>
+                </field>
+            </group>
+
+            <group id="media" translate="label" type="text" sortOrder="20" showInDefault="1"
+                   showInWebsite="0" showInStore="0">
+                <label>Media Settings</label>
+
+                <field id="download_enabled" translate="label comment" type="select" sortOrder="10"
+                       showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Enable Media Download</label>
+                    <comment>When enabled, media files will be downloaded from the source instance during sync.</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+
+                <field id="source_media_url" translate="label comment" type="text" sortOrder="20"
+                       showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Source Media Base URL</label>
+                    <comment>Base URL for media files on the source instance. Leave empty to use default (source_url/pub/media).</comment>
+                    <validate>validate-url</validate>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

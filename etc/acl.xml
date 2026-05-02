@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * MageClone MagentoMigrator ACL Configuration
+ *
+ * @category  MageClone
+ * @package   MageClone_MagentoMigrator
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Acl/etc/acl.xsd">
+    <acl>
+        <resources>
+            <resource id="Magento_Backend::admin">
+                <resource id="Magento_Backend::stores">
+                    <resource id="MageClone_MagentoMigrator::sync"
+                              title="MageClone Sync Management"
+                              translate="title"
+                              sortOrder="100"/>
+                </resource>
+            </resource>
+        </resources>
+    </acl>
+</config>

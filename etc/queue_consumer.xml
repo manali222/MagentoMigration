@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * MageClone MagentoMigrator Message Queue Consumer Configuration
+ *
+ * @category  MageClone
+ * @package   MageClone_MagentoMigrator
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework-message-queue:etc/consumer.xsd">
+    <consumer name="mageclone.sync.consumer"
+              queue="mageclone.sync.queue"
+              handler="MageClone\MagentoMigrator\Model\Queue\SyncConsumer::process"
+              maxMessages="100"
+              connection="db"/>
+</config>

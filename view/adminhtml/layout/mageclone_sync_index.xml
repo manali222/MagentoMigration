@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * MageClone MagentoMigrator Sync Dashboard Layout
+ *
+ * @category  MageClone
+ * @package   MageClone_MagentoMigrator
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <css src="MageClone_MagentoMigrator::css/dashboard.css"/>
+    </head>
+    <body>
+        <referenceContainer name="content">
+            <block class="MageClone\MagentoMigrator\Block\Adminhtml\Dashboard"
+                   name="mageclone.dashboard"
+                   template="MageClone_MagentoMigrator::dashboard.phtml"/>
+        </referenceContainer>
+    </body>
+</page>

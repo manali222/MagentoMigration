@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * MageClone MagentoMigrator Admin Menu Configuration
+ *
+ * @category  MageClone
+ * @package   MageClone_MagentoMigrator
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="MageClone_MagentoMigrator::main"
+             title="MageClone"
+             module="MageClone_MagentoMigrator"
+             sortOrder="90"
+             resource="MageClone_MagentoMigrator::sync"/>
+        <add id="MageClone_MagentoMigrator::dashboard"
+             title="Migration Dashboard"
+             module="MageClone_MagentoMigrator"
+             sortOrder="10"
+             parent="MageClone_MagentoMigrator::main"
+             action="mageclone/sync/index"
+             resource="MageClone_MagentoMigrator::sync"/>
+        <add id="MageClone_MagentoMigrator::logs"
+             title="Sync Logs"
+             module="MageClone_MagentoMigrator"
+             sortOrder="20"
+             parent="MageClone_MagentoMigrator::main"
+             action="mageclone/log/index"
+             resource="MageClone_MagentoMigrator::sync"/>
+    </menu>
+</config>

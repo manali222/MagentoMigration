@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * MageClone MagentoMigrator Message Queue Topology Configuration
+ *
+ * @category  MageClone
+ * @package   MageClone_MagentoMigrator
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework-message-queue:etc/topology.xsd">
+    <exchange name="mageclone-exchange" type="topic" connection="db">
+        <binding id="magecloneSyncBinding"
+                 topic="mageclone.sync.entity"
+                 destinationType="queue"
+                 destination="mageclone.sync.queue"/>
+    </exchange>
+</config>
