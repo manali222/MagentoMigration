@@ -235,7 +235,7 @@ abstract class AbstractEntitySync implements EntitySyncInterface
      * @param string[] $entityTypes
      * @return array Keyed array: [entityType => [sourceId => destinationId, ...], ...]
      */
-    protected function resolveIdMappings(array $entityTypes): array
+    public function resolveIdMappings(array $entityTypes): array
     {
         $mappings = [];
 

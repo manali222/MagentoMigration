@@ -19,6 +19,7 @@ use MageClone\MagentoMigrator\Model\Mapper\CustomerMapper;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Api\Data\CustomerInterfaceFactory;
 use Magento\Customer\Api\Data\AddressInterfaceFactory;
+use Magento\Customer\Api\Data\RegionInterfaceFactory;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Psr\Log\LoggerInterface;
@@ -47,6 +48,7 @@ class CustomerSync extends AbstractEntitySync
      * @var CustomerMapper
      */
     private CustomerMapper $customerMapper;
+    private RegionInterfaceFactory $regionFactory;
 
     /**
      * @param GraphQlClientInterface $graphQlClient
@@ -60,6 +62,7 @@ class CustomerSync extends AbstractEntitySync
      * @param CustomerInterfaceFactory $customerFactory
      * @param AddressInterfaceFactory $addressFactory
      * @param CustomerMapper $customerMapper
+     * @param RegionInterfaceFactory $regionFactory
      */
     public function __construct(
         GraphQlClientInterface $graphQlClient,
@@ -72,7 +75,8 @@ class CustomerSync extends AbstractEntitySync
         CustomerRepositoryInterface $customerRepository,
         CustomerInterfaceFactory $customerFactory,
         AddressInterfaceFactory $addressFactory,
-        CustomerMapper $customerMapper
+        CustomerMapper $customerMapper,
+        RegionInterfaceFactory $regionFactory
     ) {
         parent::__construct(
             $graphQlClient,
@@ -88,6 +92,7 @@ class CustomerSync extends AbstractEntitySync
         $this->customerFactory = $customerFactory;
         $this->addressFactory = $addressFactory;
         $this->customerMapper = $customerMapper;
+        $this->regionFactory = $regionFactory;
     }
 
     /**
@@ -210,8 +215,16 @@ GRAPHQL;
             $address->setLastname($addressData['lastname'] ?? '');
             $address->setStreet($addressData['street'] ?? []);
             $address->setCity($addressData['city'] ?? '');
-            $address->setRegion($addressData['region'] ?? null);
-            $address->setRegionId($addressData['region_id'] ?? null);
+            $regionName = $addressData['region'] ?? null;
+            $regionId = $addressData['region_id'] ?? null;
+            if ($regionName !== null || $regionId !== null) {
+                $region = $this->regionFactory->create();
+                $region->setRegion((string) ($regionName ?? ''));
+                $region->setRegionId($regionId ? (int) $regionId : 0);
+                $region->setRegionCode($addressData['region_code'] ?? '');
+                $address->setRegion($region);
+            }
+            $address->setRegionId($regionId !== null ? (int) $regionId : null);
             $address->setPostcode($addressData['postcode'] ?? '');
             $address->setCountryId($addressData['country_id'] ?? '');
             $address->setTelephone($addressData['telephone'] ?? '');
