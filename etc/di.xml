@@ -28,23 +28,40 @@
 
     <!-- Service Preferences -->
     <preference for="MageClone\MagentoMigrator\Api\SyncServiceInterface"
-                type="MageClone\MagentoMigrator\Model\SyncService"/>
+                type="MageClone\MagentoMigrator\Model\Sync\SyncService"/>
     <preference for="MageClone\MagentoMigrator\Api\GraphQlClientInterface"
                 type="MageClone\MagentoMigrator\Model\GraphQlClient"/>
 
     <!-- SyncService Constructor Argument: Entity Syncs -->
-    <type name="MageClone\MagentoMigrator\Model\SyncService">
+    <type name="MageClone\MagentoMigrator\Model\Sync\SyncService">
         <arguments>
             <argument name="entitySyncs" xsi:type="array">
-                <!-- Entity sync classes will be registered here in later phases -->
-                <!-- Example:
+                <item name="eav_attribute" xsi:type="object">MageClone\MagentoMigrator\Model\Sync\EavAttributeSync</item>
                 <item name="customer" xsi:type="object">MageClone\MagentoMigrator\Model\Sync\CustomerSync</item>
+                <item name="category" xsi:type="object">MageClone\MagentoMigrator\Model\Sync\CategorySync</item>
                 <item name="product" xsi:type="object">MageClone\MagentoMigrator\Model\Sync\ProductSync</item>
                 <item name="order" xsi:type="object">MageClone\MagentoMigrator\Model\Sync\OrderSync</item>
                 <item name="cms_page" xsi:type="object">MageClone\MagentoMigrator\Model\Sync\CmsPageSync</item>
                 <item name="cms_block" xsi:type="object">MageClone\MagentoMigrator\Model\Sync\CmsBlockSync</item>
+                <item name="store_config" xsi:type="object">MageClone\MagentoMigrator\Model\Sync\StoreConfigSync</item>
+                <item name="custom_table" xsi:type="object">MageClone\MagentoMigrator\Model\Sync\CustomTableSync</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!-- SyncConsumer Constructor Argument: Entity Syncs -->
+    <type name="MageClone\MagentoMigrator\Model\Queue\SyncConsumer">
+        <arguments>
+            <argument name="entitySyncs" xsi:type="array">
+                <item name="eav_attribute" xsi:type="object">MageClone\MagentoMigrator\Model\Sync\EavAttributeSync</item>
+                <item name="customer" xsi:type="object">MageClone\MagentoMigrator\Model\Sync\CustomerSync</item>
                 <item name="category" xsi:type="object">MageClone\MagentoMigrator\Model\Sync\CategorySync</item>
-                -->
+                <item name="product" xsi:type="object">MageClone\MagentoMigrator\Model\Sync\ProductSync</item>
+                <item name="order" xsi:type="object">MageClone\MagentoMigrator\Model\Sync\OrderSync</item>
+                <item name="cms_page" xsi:type="object">MageClone\MagentoMigrator\Model\Sync\CmsPageSync</item>
+                <item name="cms_block" xsi:type="object">MageClone\MagentoMigrator\Model\Sync\CmsBlockSync</item>
+                <item name="store_config" xsi:type="object">MageClone\MagentoMigrator\Model\Sync\StoreConfigSync</item>
+                <item name="custom_table" xsi:type="object">MageClone\MagentoMigrator\Model\Sync\CustomTableSync</item>
             </argument>
         </arguments>
     </type>

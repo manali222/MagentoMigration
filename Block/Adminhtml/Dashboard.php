@@ -76,7 +76,7 @@ class Dashboard extends Template
      */
     public function getSourceUrl(): string
     {
-        return $this->config->getSourceUrl();
+        return $this->config->getSourceUrl() ?? __('Not Configured')->render();
     }
 
     /**

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>MageClone - Migration Dashboard</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Open Sans', Arial, sans-serif; background: #ededed; color: #333; }
+
+/* Magento Admin Header */
+.admin-header { background: #41362f; height: 55px; display: flex; align-items: center; padding: 0 20px; }
+.admin-header .logo { color: #f37b20; font-size: 18px; font-weight: 700; letter-spacing: 1px; }
+.admin-header .logo span { color: #fff; font-weight: 300; }
+.admin-header .admin-user { margin-left: auto; color: #bbb; font-size: 13px; }
+
+/* Breadcrumb */
+.breadcrumb { background: #fff; border-bottom: 1px solid #ddd; padding: 12px 30px; font-size: 13px; color: #666; }
+.breadcrumb a { color: #1979c3; text-decoration: none; }
+
+/* Page Title */
+.page-title-wrapper { padding: 20px 30px 10px; }
+.page-title { font-size: 28px; font-weight: 300; color: #333; }
+
+/* Content Area */
+.content { padding: 0 30px 30px; }
+
+/* Connection Status */
+.connection-card { background: #fff; border: 1px solid #ccc; border-radius: 4px; padding: 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; }
+.connection-card.connected { border-left: 4px solid #79a22e; }
+.connection-card.disconnected { border-left: 4px solid #e22626; }
+.status-dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
+.status-dot.green { background: #79a22e; box-shadow: 0 0 6px rgba(121,162,46,0.5); }
+.status-dot.red { background: #e22626; }
+.connection-info { flex: 1; }
+.connection-info .label { font-size: 14px; font-weight: 600; color: #333; }
+.connection-info .url { font-size: 13px; color: #666; margin-top: 2px; }
+
+/* Action Buttons */
+.actions-bar { margin-bottom: 20px; display: flex; gap: 10px; }
+.btn { padding: 10px 22px; border: none; border-radius: 3px; font-size: 14px; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+.btn-primary { background: #eb5202; color: #fff; }
+.btn-primary:hover { background: #d44a02; }
+.btn-secondary { background: #514943; color: #fff; }
+.btn-secondary:hover { background: #41362f; }
+.btn-outline { background: #fff; color: #514943; border: 1px solid #ada89e; }
+.btn-outline:hover { background: #f5f5f5; }
+
+/* Sync Table */
+.sync-table-wrapper { background: #fff; border: 1px solid #ccc; border-radius: 4px; overflow: hidden; }
+.sync-table { width: 100%; border-collapse: collapse; }
+.sync-table thead th { background: #f8f8f8; border-bottom: 2px solid #ddd; padding: 12px 15px; text-align: left; font-size: 13px; font-weight: 600; color: #333; text-transform: uppercase; letter-spacing: 0.5px; }
+.sync-table tbody td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 14px; vertical-align: middle; }
+.sync-table tbody tr:hover { background: #f9f9f9; }
+.sync-table tbody tr:last-child td { border-bottom: none; }
+
+/* Status Badges */
+.status-badge { display: inline-block; padding: 4px 12px; border-radius: 3px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.status-idle { background: #f0f0f0; color: #888; }
+.status-running { background: #e1f0ff; color: #1979c3; }
+.status-completed { background: #e8f5e1; color: #79a22e; }
+.status-failed { background: #fde8e8; color: #e22626; }
+
+/* Count cells */
+.count-cell { font-weight: 600; font-size: 14px; }
+.count-synced { color: #79a22e; }
+.count-failed { color: #e22626; }
+.count-pending { color: #f37b20; }
+
+/* Sync button in table */
+.btn-sync-sm { padding: 6px 16px; font-size: 12px; background: #1979c3; color: #fff; border: none; border-radius: 3px; cursor: pointer; font-weight: 600; }
+.btn-sync-sm:hover { background: #1565a7; }
+
+/* Last synced */
+.last-synced { font-size: 12px; color: #999; }
+
+/* Footer stats */
+.stats-bar { margin-top: 15px; display: flex; gap: 30px; padding: 15px 0; }
+.stat-item { text-align: center; }
+.stat-value { font-size: 24px; font-weight: 600; color: #333; }
+.stat-label { font-size: 12px; color: #888; text-transform: uppercase; margin-top: 2px; }
+</style>
+</head>
+<body>
+
+<div class="admin-header">
+    <div class="logo">MAGENTO <span>Admin Panel</span></div>
+    <div class="admin-user">admin &nbsp;|&nbsp; Log Out</div>
+</div>
+
+<div class="breadcrumb">
+    <a href="#">Dashboard</a> &nbsp;/&nbsp; <a href="#">MageClone</a> &nbsp;/&nbsp; Migration Dashboard
+</div>
+
+<div class="page-title-wrapper">
+    <h1 class="page-title">Migration Dashboard</h1>
+</div>
+
+<div class="content">
+    <!-- Connection Status -->
+    <div class="connection-card connected">
+        <div class="status-dot green"></div>
+        <div class="connection-info">
+            <div class="label">Source Instance Connected</div>
+            <div class="url">https://source-store.example.com</div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="actions-bar">
+        <button class="btn btn-primary">Sync All Entities</button>
+        <button class="btn btn-secondary">Resync Failed</button>
+        <a href="#" class="btn btn-outline">View Sync Logs</a>
+    </div>
+
+    <!-- Sync Status Table -->
+    <div class="sync-table-wrapper">
+        <table class="sync-table">
+            <thead>
+                <tr>
+                    <th>Entity Type</th>
+                    <th>Source Count</th>
+                    <th>Dest Count</th>
+                    <th>Synced</th>
+                    <th>Failed</th>
+                    <th>Pending</th>
+                    <th>Status</th>
+                    <th>Last Synced</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>EAV Attributes</strong></td>
+                    <td class="count-cell">142</td>
+                    <td class="count-cell">142</td>
+                    <td class="count-cell count-synced">142</td>
+                    <td class="count-cell count-failed">0</td>
+                    <td class="count-cell count-pending">0</td>
+                    <td><span class="status-badge status-completed">Completed</span></td>
+                    <td class="last-synced">May 4, 2026 10:32 AM</td>
+                    <td><button class="btn-sync-sm">Sync</button></td>
+                </tr>
+                <tr>
+                    <td><strong>Customers</strong></td>
+                    <td class="count-cell">1,247</td>
+                    <td class="count-cell">1,245</td>
+                    <td class="count-cell count-synced">1,245</td>
+                    <td class="count-cell count-failed">2</td>
+                    <td class="count-cell count-pending">0</td>
+                    <td><span class="status-badge status-completed">Completed</span></td>
+                    <td class="last-synced">May 4, 2026 10:35 AM</td>
+                    <td><button class="btn-sync-sm">Sync</button></td>
+                </tr>
+                <tr>
+                    <td><strong>Categories</strong></td>
+                    <td class="count-cell">86</td>
+                    <td class="count-cell">86</td>
+                    <td class="count-cell count-synced">86</td>
+                    <td class="count-cell count-failed">0</td>
+                    <td class="count-cell count-pending">0</td>
+                    <td><span class="status-badge status-completed">Completed</span></td>
+                    <td class="last-synced">May 4, 2026 10:34 AM</td>
+                    <td><button class="btn-sync-sm">Sync</button></td>
+                </tr>
+                <tr>
+                    <td><strong>Products</strong></td>
+                    <td class="count-cell">3,842</td>
+                    <td class="count-cell">2,150</td>
+                    <td class="count-cell count-synced">2,150</td>
+                    <td class="count-cell count-failed">0</td>
+                    <td class="count-cell count-pending">1,692</td>
+                    <td><span class="status-badge status-running">Running</span></td>
+                    <td class="last-synced">May 4, 2026 10:40 AM</td>
+                    <td><button class="btn-sync-sm" disabled style="opacity:0.5">Syncing...</button></td>
+                </tr>
+                <tr>
+                    <td><strong>Orders</strong></td>
+                    <td class="count-cell">5,631</td>
+                    <td class="count-cell">0</td>
+                    <td class="count-cell count-synced">0</td>
+                    <td class="count-cell count-failed">0</td>
+                    <td class="count-cell count-pending">5,631</td>
+                    <td><span class="status-badge status-idle">Pending</span></td>
+                    <td class="last-synced">--</td>
+                    <td><button class="btn-sync-sm">Sync</button></td>
+                </tr>
+                <tr>
+                    <td><strong>CMS Pages</strong></td>
+                    <td class="count-cell">12</td>
+                    <td class="count-cell">12</td>
+                    <td class="count-cell count-synced">12</td>
+                    <td class="count-cell count-failed">0</td>
+                    <td class="count-cell count-pending">0</td>
+                    <td><span class="status-badge status-completed">Completed</span></td>
+                    <td class="last-synced">May 4, 2026 10:33 AM</td>
+                    <td><button class="btn-sync-sm">Sync</button></td>
+                </tr>
+                <tr>
+                    <td><strong>CMS Blocks</strong></td>
+                    <td class="count-cell">24</td>
+                    <td class="count-cell">24</td>
+                    <td class="count-cell count-synced">24</td>
+                    <td class="count-cell count-failed">0</td>
+                    <td class="count-cell count-pending">0</td>
+                    <td><span class="status-badge status-completed">Completed</span></td>
+                    <td class="last-synced">May 4, 2026 10:33 AM</td>
+                    <td><button class="btn-sync-sm">Sync</button></td>
+                </tr>
+                <tr>
+                    <td><strong>Store Config</strong></td>
+                    <td class="count-cell">87</td>
+                    <td class="count-cell">87</td>
+                    <td class="count-cell count-synced">87</td>
+                    <td class="count-cell count-failed">0</td>
+                    <td class="count-cell count-pending">0</td>
+                    <td><span class="status-badge status-completed">Completed</span></td>
+                    <td class="last-synced">May 4, 2026 10:32 AM</td>
+                    <td><button class="btn-sync-sm">Sync</button></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="stats-bar">
+        <div class="stat-item">
+            <div class="stat-value">11,071</div>
+            <div class="stat-label">Total Source Records</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value" style="color:#79a22e;">3,746</div>
+            <div class="stat-label">Synced</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value" style="color:#e22626;">2</div>
+            <div class="stat-label">Failed</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value" style="color:#f37b20;">7,323</div>
+            <div class="stat-label">Pending</div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>MageClone - System Configuration</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Open Sans', Arial, sans-serif; background: #ededed; color: #333; }
+
+.admin-header { background: #41362f; height: 55px; display: flex; align-items: center; padding: 0 20px; }
+.admin-header .logo { color: #f37b20; font-size: 18px; font-weight: 700; letter-spacing: 1px; }
+.admin-header .logo span { color: #fff; font-weight: 300; }
+.admin-header .admin-user { margin-left: auto; color: #bbb; font-size: 13px; }
+
+.breadcrumb { background: #fff; border-bottom: 1px solid #ddd; padding: 12px 30px; font-size: 13px; color: #666; }
+.breadcrumb a { color: #1979c3; text-decoration: none; }
+
+.page-title-wrapper { padding: 20px 30px 10px; display: flex; align-items: center; justify-content: space-between; }
+.page-title { font-size: 28px; font-weight: 300; color: #333; }
+.btn-save { padding: 10px 30px; background: #eb5202; color: #fff; border: none; border-radius: 3px; font-size: 14px; font-weight: 600; cursor: pointer; }
+
+.content { padding: 0 30px 30px; display: flex; gap: 20px; }
+
+/* Sidebar */
+.sidebar { width: 240px; flex-shrink: 0; }
+.sidebar-section { background: #fff; border: 1px solid #ccc; border-radius: 4px; overflow: hidden; margin-bottom: 15px; }
+.sidebar-title { background: #f8f8f8; padding: 12px 15px; font-size: 13px; font-weight: 600; border-bottom: 1px solid #ddd; color: #333; text-transform: uppercase; letter-spacing: 0.5px; }
+.sidebar-item { padding: 10px 15px; font-size: 13px; cursor: pointer; border-bottom: 1px solid #f0f0f0; color: #666; }
+.sidebar-item:hover { background: #f5f5f5; color: #1979c3; }
+.sidebar-item.active { background: #1979c3; color: #fff; font-weight: 600; }
+.sidebar-item:last-child { border-bottom: none; }
+
+/* Config form */
+.config-main { flex: 1; }
+
+/* Config Section */
+.config-section { background: #fff; border: 1px solid #ccc; border-radius: 4px; margin-bottom: 20px; overflow: hidden; }
+.section-header { background: #f8f8f8; padding: 14px 20px; border-bottom: 1px solid #ddd; cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
+.section-header h3 { font-size: 15px; font-weight: 600; color: #333; }
+.section-header .toggle { font-size: 12px; color: #999; }
+
+.field-row { display: flex; padding: 15px 20px; border-bottom: 1px solid #f0f0f0; align-items: flex-start; }
+.field-row:last-child { border-bottom: none; }
+.field-label { width: 220px; flex-shrink: 0; padding-top: 8px; }
+.field-label label { font-size: 13px; font-weight: 600; color: #333; }
+.field-label .required { color: #e22626; }
+.field-label .field-note { font-size: 11px; color: #999; margin-top: 3px; }
+.field-input { flex: 1; }
+.field-input input[type="text"],
+.field-input input[type="password"],
+.field-input textarea { width: 100%; max-width: 480px; padding: 8px 12px; border: 1px solid #ccc; border-radius: 3px; font-size: 13px; color: #333; font-family: inherit; }
+.field-input input:focus, .field-input textarea:focus, .field-input select:focus { border-color: #1979c3; outline: none; box-shadow: 0 0 3px rgba(25,121,195,0.2); }
+.field-input select { padding: 8px 12px; border: 1px solid #ccc; border-radius: 3px; font-size: 13px; color: #333; min-width: 200px; }
+.field-input textarea { height: 60px; resize: vertical; }
+.field-input .field-comment { font-size: 11px; color: #999; margin-top: 5px; }
+.field-input .password-dots { letter-spacing: 3px; }
+
+/* Multiselect */
+.multiselect-wrapper { border: 1px solid #ccc; border-radius: 3px; max-width: 480px; max-height: 180px; overflow-y: auto; }
+.multiselect-item { padding: 6px 12px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #f5f5f5; }
+.multiselect-item:hover { background: #f5faff; }
+.multiselect-item input[type="checkbox"] { accent-color: #1979c3; }
+.multiselect-item.selected { background: #e1f0ff; }
+
+/* Scope badge */
+.scope-badge { display: inline-block; background: #e8eaf6; color: #3f51b5; padding: 2px 8px; border-radius: 3px; font-size: 10px; font-weight: 600; margin-left: 8px; text-transform: uppercase; }
+</style>
+</head>
+<body>
+
+<div class="admin-header">
+    <div class="logo">MAGENTO <span>Admin Panel</span></div>
+    <div class="admin-user">admin &nbsp;|&nbsp; Log Out</div>
+</div>
+
+<div class="breadcrumb">
+    <a href="#">Dashboard</a> &nbsp;/&nbsp; <a href="#">Stores</a> &nbsp;/&nbsp; <a href="#">Configuration</a> &nbsp;/&nbsp; MageClone - Migrator Settings
+</div>
+
+<div class="page-title-wrapper">
+    <h1 class="page-title">Configuration</h1>
+    <button class="btn-save">Save Config</button>
+</div>
+
+<div class="content">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-section">
+            <div class="sidebar-title">MageClone</div>
+            <div class="sidebar-item active">Migrator Settings</div>
+        </div>
+        <div class="sidebar-section">
+            <div class="sidebar-title">General</div>
+            <div class="sidebar-item">General</div>
+            <div class="sidebar-item">Web</div>
+            <div class="sidebar-item">Design</div>
+        </div>
+        <div class="sidebar-section">
+            <div class="sidebar-title">Catalog</div>
+            <div class="sidebar-item">Catalog</div>
+            <div class="sidebar-item">Inventory</div>
+        </div>
+    </div>
+
+    <!-- Config Form -->
+    <div class="config-main">
+        <!-- Source Configuration -->
+        <div class="config-section">
+            <div class="section-header">
+                <h3>Source Configuration</h3>
+                <span class="toggle">&#9660;</span>
+            </div>
+            <div class="field-row">
+                <div class="field-label">
+                    <label>Source Magento URL <span class="required">*</span></label>
+                    <div class="field-note">Base URL of source instance</div>
+                </div>
+                <div class="field-input">
+                    <input type="text" value="https://source-store.example.com">
+                    <div class="field-comment">Enter the full base URL without trailing slash (e.g., https://mystore.com)</div>
+                </div>
+            </div>
+            <div class="field-row">
+                <div class="field-label">
+                    <label>API Bearer Token <span class="required">*</span></label>
+                    <div class="field-note">Admin API token from source</div>
+                </div>
+                <div class="field-input">
+                    <input type="password" value="abcdefghijklmnop" class="password-dots">
+                    <div class="field-comment">Generate via POST /rest/V1/integration/admin/token on the source instance</div>
+                </div>
+            </div>
+            <div class="field-row">
+                <div class="field-label">
+                    <label>Batch Size</label>
+                    <div class="field-note">Records per sync batch</div>
+                </div>
+                <div class="field-input">
+                    <input type="text" value="50" style="width:100px;">
+                    <div class="field-comment">Default: 50. Increase for faster sync, decrease if encountering memory issues.</div>
+                </div>
+            </div>
+            <div class="field-row">
+                <div class="field-label">
+                    <label>Enable Incremental Sync</label>
+                </div>
+                <div class="field-input">
+                    <select>
+                        <option selected>Yes</option>
+                        <option>No</option>
+                    </select>
+                    <div class="field-comment">When enabled, only sync records modified since the last sync run.</div>
+                </div>
+            </div>
+            <div class="field-row">
+                <div class="field-label">
+                    <label>Enabled Entity Types</label>
+                    <div class="field-note">Select entities to sync</div>
+                </div>
+                <div class="field-input">
+                    <div class="multiselect-wrapper">
+                        <label class="multiselect-item selected"><input type="checkbox" checked> Customers</label>
+                        <label class="multiselect-item selected"><input type="checkbox" checked> Orders</label>
+                        <label class="multiselect-item selected"><input type="checkbox" checked> Products</label>
+                        <label class="multiselect-item selected"><input type="checkbox" checked> Categories</label>
+                        <label class="multiselect-item selected"><input type="checkbox" checked> CMS Pages</label>
+                        <label class="multiselect-item selected"><input type="checkbox" checked> CMS Blocks</label>
+                        <label class="multiselect-item"><input type="checkbox" checked> Store Config</label>
+                        <label class="multiselect-item selected"><input type="checkbox" checked> EAV Attributes</label>
+                        <label class="multiselect-item"><input type="checkbox"> Custom Tables</label>
+                    </div>
+                    <div class="field-comment">Hold Ctrl/Cmd to select multiple entity types.</div>
+                </div>
+            </div>
+            <div class="field-row">
+                <div class="field-label">
+                    <label>Custom Table Names</label>
+                    <div class="field-note">Comma-separated list</div>
+                </div>
+                <div class="field-input">
+                    <textarea placeholder="e.g., custom_loyalty_points, custom_reviews"></textarea>
+                    <div class="field-comment">Enter custom database table names to include in the migration, separated by commas.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Media Settings -->
+        <div class="config-section">
+            <div class="section-header">
+                <h3>Media Settings</h3>
+                <span class="toggle">&#9660;</span>
+            </div>
+            <div class="field-row">
+                <div class="field-label">
+                    <label>Download Product Images</label>
+                </div>
+                <div class="field-input">
+                    <select>
+                        <option selected>Yes</option>
+                        <option>No</option>
+                    </select>
+                    <div class="field-comment">Download and transfer product media files from the source instance.</div>
+                </div>
+            </div>
+            <div class="field-row">
+                <div class="field-label">
+                    <label>Source Media URL</label>
+                    <div class="field-note">Base media URL of source</div>
+                </div>
+                <div class="field-input">
+                    <input type="text" value="https://source-store.example.com/pub/media">
+                    <div class="field-comment">Full URL to the source instance's pub/media directory.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

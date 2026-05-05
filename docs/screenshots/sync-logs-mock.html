@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>MageClone - Sync Logs</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Open Sans', Arial, sans-serif; background: #ededed; color: #333; }
+
+.admin-header { background: #41362f; height: 55px; display: flex; align-items: center; padding: 0 20px; }
+.admin-header .logo { color: #f37b20; font-size: 18px; font-weight: 700; letter-spacing: 1px; }
+.admin-header .logo span { color: #fff; font-weight: 300; }
+.admin-header .admin-user { margin-left: auto; color: #bbb; font-size: 13px; }
+
+.breadcrumb { background: #fff; border-bottom: 1px solid #ddd; padding: 12px 30px; font-size: 13px; color: #666; }
+.breadcrumb a { color: #1979c3; text-decoration: none; }
+
+.page-title-wrapper { padding: 20px 30px 10px; display: flex; align-items: center; justify-content: space-between; }
+.page-title { font-size: 28px; font-weight: 300; color: #333; }
+
+.content { padding: 0 30px 30px; }
+
+/* Toolbar */
+.toolbar { background: #fff; border: 1px solid #ccc; border-bottom: none; border-radius: 4px 4px 0 0; padding: 15px; display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+.toolbar-group { display: flex; align-items: center; gap: 8px; }
+.toolbar label { font-size: 13px; font-weight: 600; color: #555; }
+.toolbar select, .toolbar input { padding: 7px 10px; border: 1px solid #ccc; border-radius: 3px; font-size: 13px; color: #333; background: #fff; }
+.toolbar select { min-width: 140px; }
+.toolbar input[type="text"] { width: 180px; }
+.btn-sm { padding: 7px 16px; font-size: 13px; border: none; border-radius: 3px; cursor: pointer; font-weight: 600; }
+.btn-filter { background: #1979c3; color: #fff; }
+.btn-reset { background: #f0f0f0; color: #666; border: 1px solid #ccc; }
+.btn-export { background: #79a22e; color: #fff; margin-left: auto; }
+
+/* Records info */
+.records-info { background: #fff; border: 1px solid #ccc; border-top: none; border-bottom: none; padding: 10px 15px; font-size: 13px; color: #666; display: flex; justify-content: space-between; align-items: center; }
+.pager { display: flex; align-items: center; gap: 5px; }
+.pager-btn { width: 28px; height: 28px; border: 1px solid #ccc; background: #fff; border-radius: 3px; cursor: pointer; font-size: 12px; display: flex; align-items: center; justify-content: center; color: #666; }
+.pager-btn.active { background: #1979c3; color: #fff; border-color: #1979c3; }
+.pager select { padding: 4px 8px; border: 1px solid #ccc; border-radius: 3px; font-size: 12px; }
+
+/* Log Table */
+.log-table-wrapper { background: #fff; border: 1px solid #ccc; border-radius: 0 0 4px 4px; overflow: hidden; }
+.log-table { width: 100%; border-collapse: collapse; }
+.log-table thead th { background: #f8f8f8; border-bottom: 2px solid #ddd; padding: 11px 15px; text-align: left; font-size: 12px; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; }
+.log-table thead th:hover { color: #1979c3; }
+.log-table thead th .sort-arrow { font-size: 10px; margin-left: 4px; color: #bbb; }
+.log-table tbody td { padding: 10px 15px; border-bottom: 1px solid #eee; font-size: 13px; vertical-align: middle; }
+.log-table tbody tr:hover { background: #f5faff; }
+
+.status-badge { display: inline-block; padding: 3px 10px; border-radius: 3px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.status-success { background: #e8f5e1; color: #79a22e; }
+.status-failed { background: #fde8e8; color: #e22626; }
+.status-skipped { background: #fff3e0; color: #e67e22; }
+
+.entity-badge { display: inline-block; padding: 3px 10px; border-radius: 3px; font-size: 11px; font-weight: 600; background: #e8eaf6; color: #3f51b5; }
+
+.message-cell { max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #666; }
+.message-cell.error { color: #e22626; }
+
+.batch-id { font-family: 'Courier New', monospace; font-size: 12px; color: #888; }
+.date-cell { font-size: 12px; color: #888; white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<div class="admin-header">
+    <div class="logo">MAGENTO <span>Admin Panel</span></div>
+    <div class="admin-user">admin &nbsp;|&nbsp; Log Out</div>
+</div>
+
+<div class="breadcrumb">
+    <a href="#">Dashboard</a> &nbsp;/&nbsp; <a href="#">MageClone</a> &nbsp;/&nbsp; Sync Logs
+</div>
+
+<div class="page-title-wrapper">
+    <h1 class="page-title">Sync Logs</h1>
+</div>
+
+<div class="content">
+    <!-- Toolbar / Filters -->
+    <div class="toolbar">
+        <div class="toolbar-group">
+            <label>Entity Type:</label>
+            <select>
+                <option>All</option>
+                <option>Customer</option>
+                <option selected>Product</option>
+                <option>Order</option>
+                <option>Category</option>
+                <option>CMS Page</option>
+            </select>
+        </div>
+        <div class="toolbar-group">
+            <label>Status:</label>
+            <select>
+                <option>All</option>
+                <option>Success</option>
+                <option selected>Failed</option>
+                <option>Skipped</option>
+            </select>
+        </div>
+        <div class="toolbar-group">
+            <label>Date From:</label>
+            <input type="text" placeholder="MM/DD/YYYY" value="05/01/2026">
+        </div>
+        <button class="btn-sm btn-filter">Apply Filters</button>
+        <button class="btn-sm btn-reset">Reset</button>
+        <button class="btn-sm btn-export">Export CSV</button>
+    </div>
+
+    <!-- Records Info -->
+    <div class="records-info">
+        <span>Records found: <strong>47</strong> (showing 1-20)</span>
+        <div class="pager">
+            <span style="font-size:12px;margin-right:5px;">Per page:</span>
+            <select><option>20</option><option>50</option><option>100</option></select>
+            <button class="pager-btn" style="margin-left:10px;">&laquo;</button>
+            <button class="pager-btn active">1</button>
+            <button class="pager-btn">2</button>
+            <button class="pager-btn">3</button>
+            <button class="pager-btn">&raquo;</button>
+        </div>
+    </div>
+
+    <!-- Log Table -->
+    <div class="log-table-wrapper">
+        <table class="log-table">
+            <thead>
+                <tr>
+                    <th>ID <span class="sort-arrow">&#9660;</span></th>
+                    <th>Entity Type</th>
+                    <th>Source ID</th>
+                    <th>Status</th>
+                    <th>Message</th>
+                    <th>Batch ID</th>
+                    <th>Date <span class="sort-arrow">&#9660;</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1247</td>
+                    <td><span class="entity-badge">product</span></td>
+                    <td>3421</td>
+                    <td><span class="status-badge status-failed">Failed</span></td>
+                    <td class="message-cell error">URL key 'blue-widget' already exists for store_id 1</td>
+                    <td class="batch-id">batch-a7f2e9</td>
+                    <td class="date-cell">May 4, 2026 10:41:23 AM</td>
+                </tr>
+                <tr>
+                    <td>1246</td>
+                    <td><span class="entity-badge">product</span></td>
+                    <td>3418</td>
+                    <td><span class="status-badge status-failed">Failed</span></td>
+                    <td class="message-cell error">Required attribute 'color' has no value for product SKU-8821</td>
+                    <td class="batch-id">batch-a7f2e9</td>
+                    <td class="date-cell">May 4, 2026 10:41:22 AM</td>
+                </tr>
+                <tr>
+                    <td>1245</td>
+                    <td><span class="entity-badge">product</span></td>
+                    <td>3415</td>
+                    <td><span class="status-badge status-success">Success</span></td>
+                    <td class="message-cell">Synced successfully. Destination ID: 2204</td>
+                    <td class="batch-id">batch-a7f2e9</td>
+                    <td class="date-cell">May 4, 2026 10:41:21 AM</td>
+                </tr>
+                <tr>
+                    <td>1244</td>
+                    <td><span class="entity-badge">product</span></td>
+                    <td>3412</td>
+                    <td><span class="status-badge status-success">Success</span></td>
+                    <td class="message-cell">Synced successfully. Destination ID: 2203</td>
+                    <td class="batch-id">batch-a7f2e9</td>
+                    <td class="date-cell">May 4, 2026 10:41:20 AM</td>
+                </tr>
+                <tr>
+                    <td>1243</td>
+                    <td><span class="entity-badge">product</span></td>
+                    <td>3408</td>
+                    <td><span class="status-badge status-skipped">Skipped</span></td>
+                    <td class="message-cell">Product SKU-7743 already exists, checksum unchanged</td>
+                    <td class="batch-id">batch-a7f2e9</td>
+                    <td class="date-cell">May 4, 2026 10:41:19 AM</td>
+                </tr>
+                <tr>
+                    <td>1242</td>
+                    <td><span class="entity-badge">product</span></td>
+                    <td>3405</td>
+                    <td><span class="status-badge status-success">Success</span></td>
+                    <td class="message-cell">Synced successfully. Destination ID: 2201</td>
+                    <td class="batch-id">batch-a7f2e9</td>
+                    <td class="date-cell">May 4, 2026 10:41:18 AM</td>
+                </tr>
+                <tr>
+                    <td>1241</td>
+                    <td><span class="entity-badge">product</span></td>
+                    <td>3401</td>
+                    <td><span class="status-badge status-success">Success</span></td>
+                    <td class="message-cell">Synced successfully. Destination ID: 2200</td>
+                    <td class="batch-id">batch-a7f2e9</td>
+                    <td class="date-cell">May 4, 2026 10:41:17 AM</td>
+                </tr>
+                <tr>
+                    <td>1240</td>
+                    <td><span class="entity-badge">product</span></td>
+                    <td>3398</td>
+                    <td><span class="status-badge status-failed">Failed</span></td>
+                    <td class="message-cell error">Image file /m/y/my-product.jpg not found on source</td>
+                    <td class="batch-id">batch-a7f2e9</td>
+                    <td class="date-cell">May 4, 2026 10:41:16 AM</td>
+                </tr>
+                <tr>
+                    <td>1239</td>
+                    <td><span class="entity-badge">product</span></td>
+                    <td>3395</td>
+                    <td><span class="status-badge status-success">Success</span></td>
+                    <td class="message-cell">Synced successfully. Destination ID: 2198</td>
+                    <td class="batch-id">batch-a7f2e9</td>
+                    <td class="date-cell">May 4, 2026 10:41:15 AM</td>
+                </tr>
+                <tr>
+                    <td>1238</td>
+                    <td><span class="entity-badge">product</span></td>
+                    <td>3390</td>
+                    <td><span class="status-badge status-success">Success</span></td>
+                    <td class="message-cell">Synced successfully. Destination ID: 2197</td>
+                    <td class="batch-id">batch-a7f2e9</td>
+                    <td class="date-cell">May 4, 2026 10:41:14 AM</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>
