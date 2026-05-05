@@ -33,7 +33,6 @@ class EntityTypes implements OptionSourceInterface
             ['value' => 'category', 'label' => __('Categories')],
             ['value' => 'cms_page', 'label' => __('CMS Pages')],
             ['value' => 'cms_block', 'label' => __('CMS Blocks')],
-            ['value' => 'store_config', 'label' => __('Store Configuration')],
             ['value' => 'eav_attribute', 'label' => __('EAV Attributes')],
             ['value' => 'custom_table', 'label' => __('Custom Tables')],
         ];

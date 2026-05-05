@@ -142,7 +142,7 @@ class Dashboard extends Template
     {
         try {
             $data = $this->graphQlClient->query(
-                '{ magecloneMigrationMetadata { customer_count product_count category_count order_count cms_page_count cms_block_count store_config_count } }'
+                '{ magecloneMigrationMetadata { customer_count product_count category_count order_count cms_page_count cms_block_count } }'
             );
             $meta = $data['magecloneMigrationMetadata'] ?? [];
             return [
@@ -152,7 +152,6 @@ class Dashboard extends Template
                 'order' => $meta['order_count'] ?? 0,
                 'cms_page' => $meta['cms_page_count'] ?? 0,
                 'cms_block' => $meta['cms_block_count'] ?? 0,
-                'store_config' => $meta['store_config_count'] ?? 0,
                 'eav_attribute' => 0,
                 'custom_table' => 0,
             ];
