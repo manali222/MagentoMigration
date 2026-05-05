@@ -11,20 +11,14 @@ declare(strict_types=1);
 namespace MageClone\MagentoMigrator\Model;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Encryption\EncryptorInterface;
 use Magento\Store\Model\ScopeInterface;
 
-/**
- * Class Config
- *
- * Provides access to module system configuration values.
- */
 class Config
 {
-    /**
-     * Configuration path constants
-     */
     private const XML_PATH_SOURCE_URL = 'mageclone/general/source_url';
-    private const XML_PATH_API_TOKEN = 'mageclone/general/api_token';
+    private const XML_PATH_ADMIN_USERNAME = 'mageclone/general/admin_username';
+    private const XML_PATH_ADMIN_PASSWORD = 'mageclone/general/admin_password';
     private const XML_PATH_BATCH_SIZE = 'mageclone/general/batch_size';
     private const XML_PATH_INCREMENTAL_ENABLED = 'mageclone/general/incremental_enabled';
     private const XML_PATH_CUSTOM_TABLES = 'mageclone/general/custom_tables';
@@ -32,29 +26,19 @@ class Config
     private const XML_PATH_MEDIA_DOWNLOAD_ENABLED = 'mageclone/media/download_enabled';
     private const XML_PATH_SOURCE_MEDIA_URL = 'mageclone/media/source_media_url';
 
-    /**
-     * Default batch size
-     */
     private const DEFAULT_BATCH_SIZE = 50;
 
-    /**
-     * @var ScopeConfigInterface
-     */
     private ScopeConfigInterface $scopeConfig;
+    private EncryptorInterface $encryptor;
 
-    /**
-     * @param ScopeConfigInterface $scopeConfig
-     */
-    public function __construct(ScopeConfigInterface $scopeConfig)
-    {
+    public function __construct(
+        ScopeConfigInterface $scopeConfig,
+        EncryptorInterface $encryptor
+    ) {
         $this->scopeConfig = $scopeConfig;
+        $this->encryptor = $encryptor;
     }
 
-    /**
-     * Get source Magento instance URL
-     *
-     * @return string|null
-     */
     public function getSourceUrl(): ?string
     {
         return $this->scopeConfig->getValue(
@@ -63,24 +47,28 @@ class Config
         );
     }
 
-    /**
-     * Get API authentication token
-     *
-     * @return string|null
-     */
-    public function getApiToken(): ?string
+    public function getAdminUsername(): ?string
     {
         return $this->scopeConfig->getValue(
-            self::XML_PATH_API_TOKEN,
+            self::XML_PATH_ADMIN_USERNAME,
             ScopeInterface::SCOPE_STORE
         );
     }
 
-    /**
-     * Get batch size for sync operations
-     *
-     * @return int
-     */
+    public function getAdminPassword(): ?string
+    {
+        $value = $this->scopeConfig->getValue(
+            self::XML_PATH_ADMIN_PASSWORD,
+            ScopeInterface::SCOPE_STORE
+        );
+
+        if ($value !== null) {
+            return $this->encryptor->decrypt($value);
+        }
+
+        return null;
+    }
+
     public function getBatchSize(): int
     {
         $value = $this->scopeConfig->getValue(
@@ -91,11 +79,6 @@ class Config
         return $value !== null ? (int) $value : self::DEFAULT_BATCH_SIZE;
     }
 
-    /**
-     * Check if incremental sync is enabled
-     *
-     * @return bool
-     */
     public function isIncrementalEnabled(): bool
     {
         return $this->scopeConfig->isSetFlag(
@@ -104,11 +87,6 @@ class Config
         );
     }
 
-    /**
-     * Get custom table names to sync
-     *
-     * @return array
-     */
     public function getCustomTableNames(): array
     {
         $value = $this->scopeConfig->getValue(
@@ -123,11 +101,6 @@ class Config
         return array_map('trim', explode(',', $value));
     }
 
-    /**
-     * Get enabled entity types for sync
-     *
-     * @return array
-     */
     public function getEnabledEntityTypes(): array
     {
         $value = $this->scopeConfig->getValue(
@@ -142,11 +115,6 @@ class Config
         return array_map('trim', explode(',', $value));
     }
 
-    /**
-     * Check if media download is enabled
-     *
-     * @return bool
-     */
     public function isMediaDownloadEnabled(): bool
     {
         return $this->scopeConfig->isSetFlag(
@@ -155,11 +123,6 @@ class Config
         );
     }
 
-    /**
-     * Get source media URL
-     *
-     * @return string|null
-     */
     public function getSourceMediaUrl(): ?string
     {
         return $this->scopeConfig->getValue(

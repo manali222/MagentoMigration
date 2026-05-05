@@ -132,4 +132,32 @@ class Dashboard extends Template
             return [];
         }
     }
+
+    /**
+     * Get source entity counts from GraphQL metadata
+     *
+     * @return array
+     */
+    public function getSourceCounts(): array
+    {
+        try {
+            $data = $this->graphQlClient->query(
+                '{ magecloneMigrationMetadata { customer_count product_count category_count order_count cms_page_count cms_block_count store_config_count } }'
+            );
+            $meta = $data['magecloneMigrationMetadata'] ?? [];
+            return [
+                'customer' => $meta['customer_count'] ?? 0,
+                'product' => $meta['product_count'] ?? 0,
+                'category' => $meta['category_count'] ?? 0,
+                'order' => $meta['order_count'] ?? 0,
+                'cms_page' => $meta['cms_page_count'] ?? 0,
+                'cms_block' => $meta['cms_block_count'] ?? 0,
+                'store_config' => $meta['store_config_count'] ?? 0,
+                'eav_attribute' => 0,
+                'custom_table' => 0,
+            ];
+        } catch (\Exception $e) {
+            return [];
+        }
+    }
 }

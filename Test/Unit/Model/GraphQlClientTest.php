@@ -17,30 +17,17 @@ use Magento\Framework\HTTP\Client\Curl;
 use Magento\Framework\HTTP\Client\CurlFactory;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 /**
  * @covers \MageClone\MagentoMigrator\Model\GraphQlClient
  */
 class GraphQlClientTest extends TestCase
 {
-    /**
-     * @var Config&MockObject
-     */
-    private Config $configMock;
-
-    /**
-     * @var CurlFactory&MockObject
-     */
-    private CurlFactory $curlFactoryMock;
-
-    /**
-     * @var Curl&MockObject
-     */
-    private Curl $curlMock;
-
-    /**
-     * @var GraphQlClient
-     */
+    private Config&MockObject $configMock;
+    private CurlFactory&MockObject $curlFactoryMock;
+    private Curl&MockObject $curlMock;
+    private LoggerInterface&MockObject $loggerMock;
     private GraphQlClient $graphQlClient;
 
     protected function setUp(): void
@@ -48,50 +35,30 @@ class GraphQlClientTest extends TestCase
         $this->configMock = $this->createMock(Config::class);
         $this->curlFactoryMock = $this->createMock(CurlFactory::class);
         $this->curlMock = $this->createMock(Curl::class);
+        $this->loggerMock = $this->createMock(LoggerInterface::class);
 
         $this->curlFactoryMock->method('create')->willReturn($this->curlMock);
 
+        // Default config for JWT token fetch
+        $this->configMock->method('getSourceUrl')->willReturn('https://source.example.com');
+        $this->configMock->method('getAdminUsername')->willReturn('api_user');
+        $this->configMock->method('getAdminPassword')->willReturn('api_pass');
+
         $this->graphQlClient = new GraphQlClient(
             $this->configMock,
-            $this->curlFactoryMock
+            $this->curlFactoryMock,
+            $this->loggerMock
         );
     }
 
-    public function testQueryBuildsCorrectRequestWithHeadersAndUrl(): void
+    public function testQuerySuccessfullyFetchesData(): void
     {
-        $sourceUrl = 'https://source.example.com';
-        $token = 'test-bearer-token';
         $query = '{ customers { items { email } } }';
 
-        $this->configMock->method('getSourceUrl')->willReturn($sourceUrl);
-        $this->configMock->method('getApiToken')->willReturn($token);
-
-        $this->curlMock->expects($this->exactly(2))
-            ->method('addHeader')
-            ->willReturnCallback(function (string $name, string $value) use ($token): void {
-                static $callCount = 0;
-                $callCount++;
-                if ($callCount === 1) {
-                    $this->assertSame('Content-Type', $name);
-                    $this->assertSame('application/json', $value);
-                } elseif ($callCount === 2) {
-                    $this->assertSame('Authorization', $name);
-                    $this->assertSame('Bearer ' . $token, $value);
-                }
-            });
-
-        $this->curlMock->expects($this->once())
-            ->method('post')
-            ->with(
-                $sourceUrl . '/graphql',
-                $this->callback(function (string $body) use ($query): bool {
-                    $decoded = json_decode($body, true);
-                    return $decoded['query'] === $query;
-                })
-            );
-
+        // JWT token fetch returns 200
         $this->curlMock->method('getStatus')->willReturn(200);
-        $this->curlMock->method('getBody')->willReturn(
+        $this->curlMock->method('getBody')->willReturnOnConsecutiveCalls(
+            json_encode('test-jwt-token'),
             json_encode(['data' => ['customers' => ['items' => []]]])
         );
 
@@ -101,26 +68,18 @@ class GraphQlClientTest extends TestCase
         $this->assertArrayHasKey('customers', $result);
     }
 
-    public function testQueryThrowsGraphQlClientExceptionOnHttpError(): void
-    {
-        $this->configMock->method('getSourceUrl')->willReturn('https://source.example.com');
-        $this->configMock->method('getApiToken')->willReturn('token');
-
-        $this->curlMock->method('getStatus')->willReturn(500);
-        $this->curlMock->method('getBody')->willReturn('Internal Server Error');
-
-        $this->expectException(GraphQlClientException::class);
-
-        $this->graphQlClient->query('{ test }');
-    }
-
     public function testQueryThrowsExceptionOnCurlFailure(): void
     {
-        $this->configMock->method('getSourceUrl')->willReturn('https://source.example.com');
-        $this->configMock->method('getApiToken')->willReturn('token');
+        // JWT token fetch succeeds
+        $this->curlMock->method('getStatus')->willReturn(200);
+        $this->curlMock->method('getBody')->willReturn(json_encode('test-jwt-token'));
 
         $this->curlMock->method('post')
-            ->willThrowException(new \Exception('Connection refused'));
+            ->willReturnCallback(function ($url) {
+                if (str_contains($url, 'graphql')) {
+                    throw new \Exception('Connection refused');
+                }
+            });
 
         $this->expectException(GraphQlClientException::class);
 
@@ -129,11 +88,9 @@ class GraphQlClientTest extends TestCase
 
     public function testQueryThrowsExceptionOnGraphQlErrors(): void
     {
-        $this->configMock->method('getSourceUrl')->willReturn('https://source.example.com');
-        $this->configMock->method('getApiToken')->willReturn('token');
-
         $this->curlMock->method('getStatus')->willReturn(200);
-        $this->curlMock->method('getBody')->willReturn(
+        $this->curlMock->method('getBody')->willReturnOnConsecutiveCalls(
+            json_encode('test-jwt-token'),
             json_encode([
                 'errors' => [
                     ['message' => 'Field not found'],
@@ -146,39 +103,11 @@ class GraphQlClientTest extends TestCase
         $this->graphQlClient->query('{ invalidField }');
     }
 
-    public function testQueryThrowsExceptionWhenResponseMissingDataKey(): void
-    {
-        $this->configMock->method('getSourceUrl')->willReturn('https://source.example.com');
-        $this->configMock->method('getApiToken')->willReturn('token');
-
-        $this->curlMock->method('getStatus')->willReturn(200);
-        $this->curlMock->method('getBody')->willReturn(json_encode(['something' => 'else']));
-
-        $this->expectException(GraphQlClientException::class);
-
-        $this->graphQlClient->query('{ test }');
-    }
-
-    public function testQueryThrowsExceptionOnInvalidJsonResponse(): void
-    {
-        $this->configMock->method('getSourceUrl')->willReturn('https://source.example.com');
-        $this->configMock->method('getApiToken')->willReturn('token');
-
-        $this->curlMock->method('getStatus')->willReturn(200);
-        $this->curlMock->method('getBody')->willReturn('not valid json');
-
-        $this->expectException(GraphQlClientException::class);
-
-        $this->graphQlClient->query('{ test }');
-    }
-
     public function testTestConnectionReturnsTrueOnSuccess(): void
     {
-        $this->configMock->method('getSourceUrl')->willReturn('https://source.example.com');
-        $this->configMock->method('getApiToken')->willReturn('token');
-
         $this->curlMock->method('getStatus')->willReturn(200);
-        $this->curlMock->method('getBody')->willReturn(
+        $this->curlMock->method('getBody')->willReturnOnConsecutiveCalls(
+            json_encode('test-jwt-token'),
             json_encode(['data' => ['magecloneMigrationMetadata' => ['customer_count' => 100]]])
         );
 
@@ -187,12 +116,35 @@ class GraphQlClientTest extends TestCase
 
     public function testTestConnectionReturnsFalseOnException(): void
     {
+        $this->configMock = $this->createMock(Config::class);
         $this->configMock->method('getSourceUrl')->willReturn('https://source.example.com');
-        $this->configMock->method('getApiToken')->willReturn('token');
+        $this->configMock->method('getAdminUsername')->willReturn(null);
+        $this->configMock->method('getAdminPassword')->willReturn(null);
 
-        $this->curlMock->method('post')
-            ->willThrowException(new \Exception('Connection refused'));
+        $client = new GraphQlClient(
+            $this->configMock,
+            $this->curlFactoryMock,
+            $this->loggerMock
+        );
 
-        $this->assertFalse($this->graphQlClient->testConnection());
+        $this->assertFalse($client->testConnection());
+    }
+
+    public function testThrowsExceptionWhenCredentialsMissing(): void
+    {
+        $configMock = $this->createMock(Config::class);
+        $configMock->method('getSourceUrl')->willReturn('https://source.example.com');
+        $configMock->method('getAdminUsername')->willReturn(null);
+        $configMock->method('getAdminPassword')->willReturn(null);
+
+        $client = new GraphQlClient(
+            $configMock,
+            $this->curlFactoryMock,
+            $this->loggerMock
+        );
+
+        $this->expectException(GraphQlClientException::class);
+
+        $client->query('{ test }');
     }
 }

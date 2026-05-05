@@ -161,13 +161,25 @@ GRAPHQL;
         $mapped = $this->categoryMapper->mapToDestination($entityData, $idMappings);
 
         $urlKey = $mapped['url_key'] ?? null;
+        $name = $mapped['name'] ?? '';
         $parentId = $mapped['parent_id'];
 
-        // Check if category with same URL key exists under same parent
+        // Try to find existing category by URL key (any parent) or by name under same parent
         $existingCategory = null;
-        if ($urlKey !== null && $parentId !== null) {
+        if ($urlKey !== null) {
             $collection = $this->categoryCollectionFactory->create();
             $collection->addAttributeToFilter('url_key', $urlKey);
+            $collection->setPageSize(1);
+
+            if ($collection->getSize() > 0) {
+                $existingCategory = $collection->getFirstItem();
+            }
+        }
+
+        // Also try matching by name under same parent if no URL key match
+        if ($existingCategory === null && $name !== '' && $parentId !== null) {
+            $collection = $this->categoryCollectionFactory->create();
+            $collection->addAttributeToFilter('name', $name);
             $collection->addFieldToFilter('parent_id', $parentId);
             $collection->setPageSize(1);
 
@@ -182,10 +194,10 @@ GRAPHQL;
             $category = $this->categoryFactory->create();
         }
 
-        $category->setName($mapped['name'] ?? '');
+        $category->setName($name);
         $category->setIsActive($mapped['is_active'] ?? true);
         $category->setPosition($mapped['position'] ?? 0);
-        $category->setCustomAttribute('url_key', $mapped['url_key'] ?? null);
+        $category->setCustomAttribute('url_key', $urlKey);
         $category->setCustomAttribute('description', $mapped['description'] ?? null);
         $category->setCustomAttribute('meta_title', $mapped['meta_title'] ?? null);
         $category->setCustomAttribute('meta_description', $mapped['meta_description'] ?? null);

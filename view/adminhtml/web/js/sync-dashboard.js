@@ -17,11 +17,10 @@ define([
         var resyncUrl = config.resyncUrl;
         var refreshInterval = null;
 
-        /**
-         * Start sync for a specific entity type or all entities
-         *
-         * @param {string} entityType
-         */
+        function formatNumber(n) {
+            return Number(n).toLocaleString();
+        }
+
         function startSync(entityType) {
             $.ajax({
                 url: syncStartUrl,
@@ -50,9 +49,6 @@ define([
             });
         }
 
-        /**
-         * Refresh the sync status table via AJAX
-         */
         function refreshStatus() {
             $.ajax({
                 url: statusUrl,
@@ -64,6 +60,7 @@ define([
                         return;
                     }
                     updateTable(data);
+                    updateSummaryCards(data);
 
                     var anyRunning = data.some(function (item) {
                         return item.status === 'running';
@@ -82,47 +79,55 @@ define([
             });
         }
 
-        /**
-         * Update the status table with fresh data
-         *
-         * @param {Array} statuses
-         */
         function updateTable(statuses) {
             statuses.forEach(function (status) {
                 var row = $('#entity-row-' + status.entity_type);
 
                 if (row.length) {
-                    row.find('.source-count').text(status.source_count);
-                    row.find('.dest-count').text(status.destination_count);
-                    row.find('.synced-count').text(status.synced_count);
-                    row.find('.failed-count').text(status.failed_count);
-                    row.find('.pending-count').text(status.pending_count);
-                    row.find('.sync-status')
-                        .text(formatStatus(status.status))
-                        .attr('class', 'sync-status status-' + status.status);
+                    var srcCount = parseInt(status.source_count) || 0;
+                    var syncedCount = parseInt(status.synced_count) || 0;
+                    var failedCount = parseInt(status.failed_count) || 0;
+                    var pct = srcCount > 0 ? Math.round((syncedCount / srcCount) * 100) : 0;
+
+                    row.find('.source-count').text(formatNumber(srcCount));
+                    row.find('.synced-count').text(formatNumber(syncedCount));
+                    row.find('.failed-count').html(failedCount > 0 ? formatNumber(failedCount) : '&mdash;');
+
+                    // Update progress bar
+                    row.find('.bar-fill').css('width', pct + '%');
+                    row.find('.mageclone-timestamp').first().text(pct + '%');
+
+                    // Update status badge
+                    var statusVal = status.status || 'idle';
+                    var badgeHtml = '<span class="mageclone-status-badge badge-' + statusVal + '">' +
+                        statusVal.replace(/_/g, ' ').replace(/\b\w/g, function(c){ return c.toUpperCase(); }) +
+                        '</span>';
+                    row.find('.mageclone-status-badge').replaceWith(badgeHtml);
+
+                    // Update last synced
+                    if (status.last_synced_at) {
+                        row.find('.mageclone-timestamp').last().text(status.last_synced_at);
+                    }
                 }
             });
         }
 
-        /**
-         * Format a status string for display
-         *
-         * @param {string} status
-         * @returns {string}
-         */
-        function formatStatus(status) {
-            if (!status) {
-                return 'Idle';
-            }
+        function updateSummaryCards(statuses) {
+            var totalSource = 0, totalSynced = 0, totalFailed = 0, totalPending = 0;
 
-            return status.replace(/_/g, ' ').replace(/\b\w/g, function (char) {
-                return char.toUpperCase();
+            statuses.forEach(function (s) {
+                totalSource += parseInt(s.source_count) || 0;
+                totalSynced += parseInt(s.synced_count) || 0;
+                totalFailed += parseInt(s.failed_count) || 0;
+                totalPending += parseInt(s.pending_count) || 0;
             });
+
+            $('#mageclone-total-source').text(formatNumber(totalSource));
+            $('#mageclone-total-synced').text(formatNumber(totalSynced));
+            $('#mageclone-total-failed').text(formatNumber(totalFailed));
+            $('#mageclone-total-pending').text(formatNumber(totalPending));
         }
 
-        /**
-         * Start auto-refresh polling every 5 seconds
-         */
         function startAutoRefresh() {
             if (!refreshInterval) {
                 $('#mageclone-auto-refresh-indicator').show();
@@ -130,11 +135,6 @@ define([
             }
         }
 
-        /**
-         * Resync failed records for a specific entity type or all entities
-         *
-         * @param {string} entityType
-         */
         function resyncFailed(entityType) {
             $.ajax({
                 url: resyncUrl,
@@ -163,19 +163,16 @@ define([
             });
         }
 
-        /**
-         * Enable or disable action buttons
-         *
-         * @param {boolean} disabled
-         */
         function setButtonsDisabled(disabled) {
-            $('.mageclone-sync-btn, #mageclone-sync-all, #mageclone-resync-failed').prop('disabled', disabled);
+            $('.mageclone-sync-btn, .mageclone-table-btn, #mageclone-sync-all, #mageclone-resync-failed').prop('disabled', disabled);
         }
 
         // Bind event handlers
-        $(document).on('click', '.mageclone-sync-btn', function () {
+        $(document).on('click', '.mageclone-sync-btn, .mageclone-table-btn', function () {
             var entityType = $(this).data('entity-type');
-            startSync(entityType);
+            if (entityType) {
+                startSync(entityType);
+            }
         });
 
         $('#mageclone-sync-all').on('click', function () {

@@ -144,6 +144,33 @@ GRAPHQL;
             throw new \InvalidArgumentException('Store config path cannot be empty.');
         }
 
+        // Never overwrite MageClone's own configuration
+        if (str_starts_with($path, 'mageclone/')) {
+            throw new \InvalidArgumentException(
+                sprintf('Skipping protected config path: %s', $path)
+            );
+        }
+
+        // Skip sensitive paths that should not be synced
+        $protectedPrefixes = [
+            'mageclone/',
+            'oauth/',
+            'admin/',
+            'web/secure/base_url',
+            'web/unsecure/base_url',
+            'system/smtp',
+            'payment/',
+            'carriers/',
+        ];
+
+        foreach ($protectedPrefixes as $prefix) {
+            if (str_starts_with($path, $prefix)) {
+                throw new \InvalidArgumentException(
+                    sprintf('Skipping protected config path: %s', $path)
+                );
+            }
+        }
+
         $this->configWriter->save($path, $value);
 
         // Configs do not have numeric IDs

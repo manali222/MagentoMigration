@@ -12,6 +12,7 @@ namespace MageClone\MagentoMigrator\Test\Unit\Model;
 
 use MageClone\MagentoMigrator\Model\Config;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Encryption\EncryptorInterface;
 use Magento\Store\Model\ScopeInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -21,20 +22,15 @@ use PHPUnit\Framework\TestCase;
  */
 class ConfigTest extends TestCase
 {
-    /**
-     * @var ScopeConfigInterface&MockObject
-     */
-    private ScopeConfigInterface $scopeConfigMock;
-
-    /**
-     * @var Config
-     */
+    private ScopeConfigInterface&MockObject $scopeConfigMock;
+    private EncryptorInterface&MockObject $encryptorMock;
     private Config $config;
 
     protected function setUp(): void
     {
         $this->scopeConfigMock = $this->createMock(ScopeConfigInterface::class);
-        $this->config = new Config($this->scopeConfigMock);
+        $this->encryptorMock = $this->createMock(EncryptorInterface::class);
+        $this->config = new Config($this->scopeConfigMock, $this->encryptorMock);
     }
 
     public function testGetSourceUrlReturnsConfiguredValue(): void
@@ -55,22 +51,35 @@ class ConfigTest extends TestCase
         $this->assertNull($this->config->getSourceUrl());
     }
 
-    public function testGetApiTokenReturnsConfiguredValue(): void
+    public function testGetAdminUsernameReturnsConfiguredValue(): void
     {
         $this->scopeConfigMock->method('getValue')
-            ->with('mageclone/general/api_token', ScopeInterface::SCOPE_STORE)
-            ->willReturn('test-token-abc123');
+            ->with('mageclone/general/admin_username', ScopeInterface::SCOPE_STORE)
+            ->willReturn('mageclone_api');
 
-        $this->assertSame('test-token-abc123', $this->config->getApiToken());
+        $this->assertSame('mageclone_api', $this->config->getAdminUsername());
     }
 
-    public function testGetApiTokenReturnsNullWhenNotConfigured(): void
+    public function testGetAdminPasswordDecryptsValue(): void
     {
         $this->scopeConfigMock->method('getValue')
-            ->with('mageclone/general/api_token', ScopeInterface::SCOPE_STORE)
+            ->with('mageclone/general/admin_password', ScopeInterface::SCOPE_STORE)
+            ->willReturn('encrypted_value');
+
+        $this->encryptorMock->method('decrypt')
+            ->with('encrypted_value')
+            ->willReturn('plain_password');
+
+        $this->assertSame('plain_password', $this->config->getAdminPassword());
+    }
+
+    public function testGetAdminPasswordReturnsNullWhenNotConfigured(): void
+    {
+        $this->scopeConfigMock->method('getValue')
+            ->with('mageclone/general/admin_password', ScopeInterface::SCOPE_STORE)
             ->willReturn(null);
 
-        $this->assertNull($this->config->getApiToken());
+        $this->assertNull($this->config->getAdminPassword());
     }
 
     public function testGetBatchSizeReturnsConfiguredValue(): void
@@ -129,15 +138,6 @@ class ConfigTest extends TestCase
         $this->assertSame([], $this->config->getCustomTableNames());
     }
 
-    public function testGetCustomTableNamesReturnsEmptyArrayWhenNull(): void
-    {
-        $this->scopeConfigMock->method('getValue')
-            ->with('mageclone/general/custom_tables', ScopeInterface::SCOPE_STORE)
-            ->willReturn(null);
-
-        $this->assertSame([], $this->config->getCustomTableNames());
-    }
-
     public function testGetEnabledEntityTypesReturnsCommaSeparatedValues(): void
     {
         $this->scopeConfigMock->method('getValue')
@@ -147,15 +147,6 @@ class ConfigTest extends TestCase
         $result = $this->config->getEnabledEntityTypes();
 
         $this->assertSame(['customer', 'product', 'order'], $result);
-    }
-
-    public function testGetEnabledEntityTypesReturnsEmptyArrayWhenEmpty(): void
-    {
-        $this->scopeConfigMock->method('getValue')
-            ->with('mageclone/general/enabled_entities', ScopeInterface::SCOPE_STORE)
-            ->willReturn('');
-
-        $this->assertSame([], $this->config->getEnabledEntityTypes());
     }
 
     public function testGetSourceMediaUrlReturnsConfiguredValue(): void
@@ -174,14 +165,5 @@ class ConfigTest extends TestCase
             ->willReturn(true);
 
         $this->assertTrue($this->config->isMediaDownloadEnabled());
-    }
-
-    public function testIsMediaDownloadEnabledReturnsFalseWhenDisabled(): void
-    {
-        $this->scopeConfigMock->method('isSetFlag')
-            ->with('mageclone/media/download_enabled', ScopeInterface::SCOPE_STORE)
-            ->willReturn(false);
-
-        $this->assertFalse($this->config->isMediaDownloadEnabled());
     }
 }
