@@ -18,14 +18,4 @@
             </argument>
         </arguments>
     </virtualType>
-
-    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
-        <arguments>
-            <argument name="collections" xsi:type="array">
-                <item name="mageclone_sync_log_listing_data_source" xsi:type="string">
-                    MageClone\MagentoMigrator\Model\ResourceModel\SyncLog\Grid\Collection
-                </item>
-            </argument>
-        </arguments>
-    </type>
 </config>
